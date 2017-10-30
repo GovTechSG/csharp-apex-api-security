@@ -1,4 +1,5 @@
-﻿#APEX API C# Security Utility 
+# APEX API C# Security Utility 
+[![Build Status](https://travis-ci.org/GovTechSG/csharp-apex-api-security.svg?branch=master)](https://travis-ci.org/GovTechSG/csharp-apex-api-security)
 
 A C# helper utility that construct and sign HTTP Authorization header scheme for API authentication and verification
 
