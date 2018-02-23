@@ -3,12 +3,10 @@
 
 A C# helper utility that construct and sign HTTP Authorization header scheme for API authentication and verification
 
-
 ## Table of Contents
 - [APEX API C# Security Utility](#apex-api-c#-security-utility)
 - [Getting Started](#getting-started)
     * [Prerequisites](#prerequisites)
-        + [Installing NUnit Test Adapter](installing-nunit)
     * [APIList Interface](#using-the-apilist-class)
         + [Generate QueryString](#generate-querystring)
         + [Generate FormData](#generate-formdata)
@@ -19,7 +17,6 @@ A C# helper utility that construct and sign HTTP Authorization header scheme for
 - [License](#license)
 - [References](#references)
 
-
 ## Getting Started
 
 ### Prerequisites
@@ -29,9 +26,7 @@ A C# helper utility that construct and sign HTTP Authorization header scheme for
 
 Make sure that all unit test cases are passed before using the library.
 
-#### Installing NUnit
-
-**(Important : Windows Only)**
+#### Installing NUnit **(Important : Windows Only)**
 
 For windows users , NUnitTestAdapter have to be installed before you can run the test cases succcessfully.
 
