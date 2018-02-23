@@ -1,4 +1,4 @@
-# APEX API C$ Security Utility 
+# APEX API C# Security Utility 
 [![Build Status](https://travis-ci.org/GovTechSG/csharp-apex-api-security.svg?branch=master)](https://travis-ci.org/GovTechSG/csharp-apex-api-security)
 
 A C# helper utility that construct and sign HTTP Authorization header scheme for API authentication and verification
@@ -8,12 +8,12 @@ A C# helper utility that construct and sign HTTP Authorization header scheme for
 - [APEX API C# Security Utility](#apex-api-c#-security-utility)
 - [Getting Started](#getting-started)
     * [Prerequisites](#prerequisites)
-        + [Installing NUnit Testing Framework Adapter](installing-nunittestadapter)
+        + [Installing NUnit Test Adapter](installing-nunit)
     * [APIList Interface](#using-the-apilist-class)
         + [Generate QueryString](#generate-querystring)
         + [Generate FormData](#generate-formdata)
-    * [Constructing HMAC256 L1 Authorization Header](#how-to-generate-the-hmac256-l1-authorization-header)
-    * [Constructing RSA256 L2 Authorization Header](#how-to-generate-the-rsa256-l2-authorization-header)
+    * [Constructing HMAC256 L1 Authorization Header](#how-to-generate-hmac256-l1-authorization-header)
+    * [Constructing RSA256 L2 Authorization Header](#how-to-generate-rsa256-l2-authorization-header)
 - [Release](#release)
 - [Contributing](#contributing)
 - [License](#license)
@@ -29,7 +29,7 @@ A C# helper utility that construct and sign HTTP Authorization header scheme for
 
 Make sure that all unit test cases are passed before using the library.
 
-#### Installing NUnitTestAdapter 
+#### Installing NUnit
 
 **(Important : Windows Only)**
 
@@ -73,7 +73,7 @@ The ApiUtilLib Library provide the utility class ApiList to construct request Qu
     // phoneNo=%2B1+1234+4567+890&street=Hellowood+Street&state=AP
 ```
 
-### How to Generate the HMAC256 L1 Authorization Header
+### How to Generate HMAC256 L1 Authorization Header
 ```
 public static void L1Sample()
 {
@@ -124,7 +124,7 @@ public static void L1Sample()
 }
 ```
 
-### How to Generate the RSA256 L2 Authorization Header
+### How to Generate RSA256 L2 Authorization Header
 ```
 public static void L2Sample()
 {
