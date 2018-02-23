@@ -1,7 +1,24 @@
-# APEX API C# Security Utility 
+# APEX API C$ Security Utility 
 [![Build Status](https://travis-ci.org/GovTechSG/csharp-apex-api-security.svg?branch=master)](https://travis-ci.org/GovTechSG/csharp-apex-api-security)
 
 A C# helper utility that construct and sign HTTP Authorization header scheme for API authentication and verification
+
+
+## Table of Contents
+- [APEX API C# Security Utility](#apex-api-c#-security-utility)
+- [Getting Started](#getting-started)
+    * [Prerequisites](#prerequisites)
+        + [Installing NUnit Testing Framework Adapter](installing-nunittestadapter)
+    * [APIList Interface](#using-the-apilist-class)
+        + [Generate QueryString](#generate-querystring)
+        + [Generate FormData](#generate-formdata)
+    * [Constructing HMAC256 L1 Authorization Header](#how-to-generate-the-hmac256-l1-authorization-header)
+    * [Constructing RSA256 L2 Authorization Header](#how-to-generate-the-rsa256-l2-authorization-header)
+- [Release](#release)
+- [Contributing](#contributing)
+- [License](#license)
+- [References](#references)
+
 
 ## Getting Started
 
@@ -12,7 +29,9 @@ A C# helper utility that construct and sign HTTP Authorization header scheme for
 
 Make sure that all unit test cases are passed before using the library.
 
-#### Installing NUnitTestAdapter **(Importabt : Windows Only)**
+#### Installing NUnitTestAdapter 
+
+**(Important : Windows Only)**
 
 For windows users , NUnitTestAdapter have to be installed before you can run the test cases succcessfully.
 
@@ -28,7 +47,7 @@ For windows users , NUnitTestAdapter have to be installed before you can run the
 ### Using the ApiList Class
 The ApiUtilLib Library provide the utility class ApiList to construct request Query String and Form Data.
 
-##### Using ApiList class to generate the query string
+#### Generate QueryString
 ```
     var queryParam = new ApiUtilLib.ApiList();
 
@@ -42,7 +61,7 @@ The ApiUtilLib Library provide the utility class ApiList to construct request Qu
     // https://example.com/resource/?clientId=1256-1231-4598&accountStatus=active&txnDate=2017-09-29
 ```
 
-##### Using ApiList class to generate the Form Data
+#### Generate FormData
 ```
     var formData = new ApiUtilLib.ApiList();
 
@@ -54,7 +73,7 @@ The ApiUtilLib Library provide the utility class ApiList to construct request Qu
     // phoneNo=%2B1+1234+4567+890&street=Hellowood+Street&state=AP
 ```
 
-### How to Generate the L1 Authorization Header
+### How to Generate the HMAC256 L1 Authorization Header
 ```
 public static void L1Sample()
 {
@@ -105,7 +124,7 @@ public static void L1Sample()
 }
 ```
 
-### How to Generate the L2 Authorization Header
+### How to Generate the RSA256 L2 Authorization Header
 ```
 public static void L2Sample()
 {
@@ -167,17 +186,16 @@ static string GetLocalPath(string relativeFileName)
 }
 ```
 
-## Contributing
+### Release
++ See [CHANGELOG.md](CHANGELOG.md).
 
-Easy as 1-2-3:
+### Contributing
++ For more information about contributing PRs and issues, see [CONTRIBUTING.md](https://github.com/GovTechSG/csharp-apex-api-security/blob/master/.github/CONTRIBUTING.md).
 
-  + Step 1: Branch off from ```development``` and work on your feature or hotfix.
-  + Step 2: Update the changelog.
-  + Step 3: Create a pull request when you're done.
+### License
+[MIT LICENSE ](https://github.com/GovTechSG/csharp-apex-api-security/blob/master/LICENSE)
 
-## References:
+### References
 + [Akana API Consumer Security](http://docs.akana.com/ag/cm_policies/using_api_consumer_app_sec_policy.htm)
 + [RSA and HMAC Request Signing Standard](http://tools.ietf.org/html/draft-cavage-http-signatures-05)
 
-## Releases
-+ Check out latest changes at CHANGELOG.md
