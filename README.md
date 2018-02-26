@@ -4,7 +4,6 @@
 A C# helper utility that construct and sign HTTP Authorization header scheme for API authentication and verification
 
 ## Table of Contents
-- [APEX API C# Security Utility](#apex-api-c#-security-utility)
 - [Getting Started](#getting-started)
     * [Prerequisites](#prerequisites)
     * [APIList Interface](#using-the-apilist-class)
@@ -181,16 +180,16 @@ static string GetLocalPath(string relativeFileName)
 }
 ```
 
-### Release
+## Release
 + See [CHANGELOG.md](CHANGELOG.md).
 
-### Contributing
+## Contributing
 + For more information about contributing PRs and issues, see [CONTRIBUTING.md](https://github.com/GovTechSG/csharp-apex-api-security/blob/master/.github/CONTRIBUTING.md).
 
-### License
+## License
 [MIT LICENSE ](https://github.com/GovTechSG/csharp-apex-api-security/blob/master/LICENSE)
 
-### References
+## References
 + [Akana API Consumer Security](http://docs.akana.com/ag/cm_policies/using_api_consumer_app_sec_policy.htm)
 + [RSA and HMAC Request Signing Standard](http://tools.ietf.org/html/draft-cavage-http-signatures-05)
 
