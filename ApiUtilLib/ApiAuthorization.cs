@@ -220,23 +220,26 @@ namespace ApiUtilLib
             return dto.ToUnixTimeMilliseconds();
         }
 
-        public static long NewNonce()
+        public static string NewNonce()
         {
             long nonce = 0;
+            byte[] data = null;
             using (RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider())
             {
                 // Buffer storage.
-                byte[] data = new byte[8];
+                data = new byte[8];
 
                 // Fill buffer.
                 rng.GetBytes(data);
 
                 // Convert to int 64.
-                nonce = BitConverter.ToInt64(data, 0);
+                //nonce = BitConverter.ToInt64(data, 0);
+
             }
 
             Logger.LogEnterExit(LoggerBase.Args(nonce.ToString()));
-            return nonce;
+            //return nonce;
+            return System.Convert.ToBase64String(data);
         }
 
 		public static String Token(

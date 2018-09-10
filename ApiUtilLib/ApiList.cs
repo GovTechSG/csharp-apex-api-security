@@ -29,7 +29,17 @@ namespace ApiUtilLib
 
 				foreach (var item in sortedList)
 				{
-					list.Add(string.Format(format, item.Key, item.Value));
+                    format = "{0}={1}";
+                    if (quote) format = "{0}=\"{1}\"";   
+
+                    if (item.Value == null && !quote)
+                    {
+                        list.Add(string.Format("{0}", item.Key, item.Value));
+                    }
+                    else
+                    {
+                        list.Add(string.Format(format, item.Key, item.Value));
+                    }
 				}
 			}
             else
