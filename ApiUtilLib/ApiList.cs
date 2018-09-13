@@ -25,7 +25,8 @@ namespace ApiUtilLib
             if (sort)
             {
                 // sort by key, than by value
-				var sortedList = this.OrderBy(k => k.Key).ThenBy(v => v.Value);
+				var sortedList = this.OrderBy(k => k.Key,StringComparer.Ordinal).ThenBy(v => v.Value,StringComparer.Ordinal); //Fixed issue to sort by capital letter.
+
 
 				foreach (var item in sortedList)
 				{
