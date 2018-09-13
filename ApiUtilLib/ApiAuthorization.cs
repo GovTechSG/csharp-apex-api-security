@@ -231,14 +231,9 @@ namespace ApiUtilLib
 
                 // Fill buffer.
                 rng.GetBytes(data);
-
-                // Convert to int 64.
-                //nonce = BitConverter.ToInt64(data, 0);
-
             }
 
             Logger.LogEnterExit(LoggerBase.Args(nonce.ToString()));
-            //return nonce;
             return System.Convert.ToBase64String(data);
         }
 
