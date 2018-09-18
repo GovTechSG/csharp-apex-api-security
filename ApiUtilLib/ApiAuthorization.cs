@@ -250,7 +250,10 @@ namespace ApiUtilLib
             }
 
             Logger.LogEnterExit(LoggerBase.Args(nonce.ToString()));
+<<<<<<< HEAD
            
+=======
+>>>>>>> c497ab18107ff73a20517d3e48ec75d71856a473
             return System.Convert.ToBase64String(data);
         }
 
