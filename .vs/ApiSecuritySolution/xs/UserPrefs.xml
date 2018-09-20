@@ -1,73 +1,14 @@
-<<<<<<< HEAD
-﻿<Properties StartupConfiguration="{B6FD94F7-1689-4DAC-B823-0192E3CA3521}|Unit Tests" GitUserInfo="UsingMD">
+﻿<Properties>
   <MonoDevelop.Ide.Workbench ActiveDocument="development Status">
     <Files>
-      <File FileName="CHANGELOG.md" Line="6" Column="1" />
-      <File FileName="ApiUtilLibTest/L1SignatureTest.cs" Line="38" Column="4" />
-      <File FileName="ApiUtilLibTest/TestDataTest.cs" Line="128" Column="26" />
-=======
-﻿<Properties StartupConfiguration="{B6FD94F7-1689-4DAC-B823-0192E3CA3521}|Unit Tests">
-  <MonoDevelop.Ide.Workbench ActiveDocument="ApiUtilLibTest/TestDataTest.cs">
-    <Files>
-      <File FileName="CHANGELOG.md" Line="6" Column="1" />
-      <File FileName="ApiUtilLibTest/L1SignatureTest.cs" Line="38" Column="4" />
-      <File FileName="ApiUtilLibTest/TestDataTest.cs" Line="121" Column="37" />
->>>>>>> 7a1f1e293c4e284738a0f91c4876fb0628d7752b
-      <File FileName="ApiUtilLib/SignatureMethod.cs" Line="4" Column="17" />
-      <File FileName="ApiUtilLib/ApiAuthorization.cs" Line="210" Column="50" />
-      <File FileName="ApiUtilLib/ApiList.cs" Line="21" Column="1" />
-      <File FileName="ApiUtilLibTest/L2SignatureTest.cs" Line="59" Column="37" />
-<<<<<<< HEAD
-      <File FileName="ApiUtilLibTest/TestDataService.cs" Line="43" Column="1" />
-      <File FileName="ApiUtilLib/CommonExtensions.cs" Line="52" Column="10" />
-      <File FileName="ApiUtilLibTest/TestParam.cs" Line="51" Column="1" />
-      <File FileName="ApiUtilLibTest/CommonExtensions.cs" Line="88" Column="10" />
+      <File FileName="ApiUtilLibTest/TestDataService.cs" Line="1" Column="1" />
       <File FileName="development Status" />
-=======
-      <File FileName="ApiUtilLibTest/TestDataService.cs" Line="49" Column="1" />
-      <File FileName="ApiUtilLib/CommonExtensions.cs" Line="52" Column="10" />
-      <File FileName="ApiUtilLibTest/TestParam.cs" Line="51" Column="1" />
-      <File FileName="ApiUtilLibTest/CommonExtensions.cs" Line="88" Column="10" />
->>>>>>> 7a1f1e293c4e284738a0f91c4876fb0628d7752b
     </Files>
-    <Pads>
-      <Pad Id="MonoDevelop.UnitTesting.TestPad">
-        <State name="__root__">
-<<<<<<< HEAD
-          <Node name="ApiSecuritySolution" expanded="True">
-            <Node name="ApiUtilLibTest" expanded="True">
-              <Node name="ApexUtilLibTest" expanded="True">
-                <Node name="TestDataTest" expanded="True">
-                  <Node name="TestBaseString" selected="True" />
-                </Node>
-              </Node>
-            </Node>
-          </Node>
-=======
-          <Node name="ApiSecuritySolution" expanded="True" selected="True" />
->>>>>>> 7a1f1e293c4e284738a0f91c4876fb0628d7752b
-        </State>
-      </Pad>
-    </Pads>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
-<<<<<<< HEAD
     <BreakpointStore />
-=======
-    <BreakpointStore>
-      <Breakpoint file="/Users/nsearch/Projects/APEXCSharp/development/ApiUtilLibTest/TestDataService.cs" relfile="ApiUtilLibTest/TestDataService.cs" line="43" column="1" />
-      <Breakpoint file="/Users/nsearch/Projects/APEXCSharp/development/ApiUtilLibTest/TestDataTest.cs" relfile="ApiUtilLibTest/TestDataTest.cs" line="92" column="1" />
-      <Breakpoint file="/Users/nsearch/Projects/APEXCSharp/development/ApiUtilLib/ApiAuthorization.cs" relfile="ApiUtilLib/ApiAuthorization.cs" line="227" column="1" />
-      <Breakpoint file="/Users/nsearch/Projects/APEXCSharp/development/ApiUtilLibTest/TestDataTest.cs" relfile="ApiUtilLibTest/TestDataTest.cs" line="127" column="1" />
-      <Breakpoint file="/Users/nsearch/Projects/APEXCSharp/development/ApiUtilLibTest/TestDataTest.cs" relfile="ApiUtilLibTest/TestDataTest.cs" line="106" column="1" />
-      <Breakpoint file="/Users/nsearch/Projects/APEXCSharp/development/ApiUtilLibTest/TestDataTest.cs" relfile="ApiUtilLibTest/TestDataTest.cs" line="120" column="1" />
-      <Breakpoint file="/Users/nsearch/Projects/APEXCSharp/development/ApiUtilLibTest/TestDataTest.cs" relfile="ApiUtilLibTest/TestDataTest.cs" line="64" column="1" />
-      <Breakpoint file="/Users/nsearch/Projects/APEXCSharp/development/ApiUtilLibTest/TestDataTest.cs" relfile="ApiUtilLibTest/TestDataTest.cs" line="88" column="1" />
-    </BreakpointStore>
->>>>>>> 7a1f1e293c4e284738a0f91c4876fb0628d7752b
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
-  <MonoDevelop.Ide.ItemProperties.ApiUtilLibTest PreferredExecutionTarget="MonoDevelop.Default" />
   <MultiItemStartupConfigurations />
 </Properties>
