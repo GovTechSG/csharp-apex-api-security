@@ -30,12 +30,21 @@
     <Reference Include="nunit.framework">
       <HintPath>..\packages\NUnit.3.8.1\lib\net45\nunit.framework.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BaseStringTest.cs" />
     <Compile Include="L1SignatureTest.cs" />
     <Compile Include="L2SignatureTest.cs" />
     <Compile Include="AuthorizationTokenTest.cs" />
+    <Compile Include="TestParam.cs" />
+    <Compile Include="TestDataTest.cs" />
+    <Compile Include="TestDataService.cs" />
+    <Compile Include="CommonExtensions.cs" />
+    <Compile Include="BaseService.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Certificates\ssc.alpha.example.com.cer">

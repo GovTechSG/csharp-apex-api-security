@@ -4,6 +4,11 @@ using System.Net;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using ApexUtilLib;
+using System.Collections.Generic;
+using Newtonsoft.Json.Converters;
+using Newtonsoft.Json;
+using System.Linq;
 
 namespace ApiUtilLib
 {
@@ -159,57 +164,69 @@ namespace ApiUtilLib
 			, string timestamp
             , string version)
 		{
-            Logger.LogEnter(LoggerBase.Args(authPrefix, signatureMethod, appId, siteUri, httpMethod, formList, nonce, timestamp));
-
-            authPrefix = authPrefix.ToLower();
-
-            // make sure that the url are valid
-            if (siteUri.Scheme != "http" && siteUri.Scheme != "https")
+            try
             {
-                throw new System.NotSupportedException("Support http and https protocol only.");
-            }
+                Logger.LogEnter(LoggerBase.Args(authPrefix, signatureMethod, appId, siteUri, httpMethod, formList, nonce, timestamp));
 
-            // make sure that the port no and querystring are remove from url
-            var url = string.Format("{0}://{1}{2}", siteUri.Scheme, siteUri.Host, siteUri.AbsolutePath);
-            Logger.LogInformation("url:: {0}", url);
+                authPrefix = authPrefix.ToLower();
 
-            // helper calss that handle parameters and form fields
-            ApiList paramList = new ApiList();
-
-            // process QueryString from url by transfering it to paramList
-            if (siteUri.Query.Length > 1)
-            {
-                var queryString = siteUri.Query.Substring(1); // remove the ? from first character
-                Logger.LogInformation("queryString:: {0}", queryString);
-
-                var paramArr = queryString.Split('&');
-                foreach (string item in paramArr)
+                // make sure that the url are valid
+                if (siteUri.Scheme != "http" && siteUri.Scheme != "https")
                 {
-                    var itemArr = item.Split('=');
-					paramList.Add(itemArr[0], System.Net.WebUtility.UrlDecode(itemArr[1]));
-				}
+                    throw new System.NotSupportedException("Support http and https protocol only.");
+                }
 
-                Logger.LogInformation("paramList:: {0}", paramList);
+                // make sure that the port no and querystring are remove from url
+                var url = string.Format("{0}://{1}{2}", siteUri.Scheme, siteUri.Host, siteUri.AbsolutePath);
+                Logger.LogInformation("url:: {0}", url);
+
+                // helper calss that handle parameters and form fields
+                ApiList paramList = new ApiList();  
+
+                // process QueryString from url by transfering it to paramList
+                if (siteUri.Query.Length > 1)
+                {
+                    var queryString = siteUri.Query.Substring(1); // remove the ? from first character
+                    Logger.LogInformation("queryString:: {0}", queryString);
+
+                    var paramArr = queryString.Split('&');
+                    foreach (string item in paramArr)
+                    {
+                        string key = null;
+                        string val = null;
+                        var itemArr = item.Split('=');
+                        key = itemArr[0];
+                        if(itemArr.Length>1)
+                            val = itemArr[1];
+                        paramList.Add(key, System.Net.WebUtility.UrlDecode(val));
+                    }
+
+                    Logger.LogInformation("paramList:: {0}", paramList);
+                }
+
+                // add the form fields to paramList
+                if (formList != null && formList.Count > 0)
+                {
+                    paramList.AddRange(formList);
+                }
+
+                paramList.Add(authPrefix + "_timestamp", timestamp);
+                paramList.Add(authPrefix + "_nonce", nonce);
+                paramList.Add(authPrefix + "_app_id", appId);
+                paramList.Add(authPrefix + "_signature_method", signatureMethod.ToString());
+                paramList.Add(authPrefix + "_version", version);
+
+                string baseString = httpMethod.ToString() + "&" + url + "&" + paramList.ToString();
+
+                Logger.LogDebug("BaseString:: {0}", baseString);
+
+                Logger.LogExit(LoggerBase.Args(baseString));
+                return baseString;
             }
-
-            // add the form fields to paramList
-            if (formList != null && formList.Count > 0)
+                catch (Exception ex)
             {
-                paramList.AddRange(formList);
+                throw ex;
             }
-
-            paramList.Add(authPrefix + "_timestamp", timestamp);
-            paramList.Add(authPrefix + "_nonce", nonce);
-            paramList.Add(authPrefix + "_app_id", appId);
-            paramList.Add(authPrefix + "_signature_method", signatureMethod.ToString());
-            paramList.Add(authPrefix + "_version", version);
-
-            string baseString = httpMethod.ToString() + "&" + url + "&" + paramList.ToString();
-
-			Logger.LogDebug("BaseString:: {0}", baseString);
-
-            Logger.LogExit(LoggerBase.Args(baseString));
-            return baseString;
         }
 
         public static long NewTimestamp()
@@ -228,17 +245,12 @@ namespace ApiUtilLib
             {
                 // Buffer storage.
                 data = new byte[8];
-
                 // Fill buffer.
                 rng.GetBytes(data);
-
-                // Convert to int 64.
-                //nonce = BitConverter.ToInt64(data, 0);
-
             }
 
             Logger.LogEnterExit(LoggerBase.Args(nonce.ToString()));
-            //return nonce;
+           
             return System.Convert.ToBase64String(data);
         }
 
