@@ -22,7 +22,7 @@ namespace ApexUtilLibTest
 
         public bool errorTest { get; set; }
 
-        public dynamic expectedResult { get; set; }
+        public Dictionary<string, string> expectedResult { get; set; }
     }
 
     public class APIParam

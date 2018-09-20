@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Text;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace ApexUtilLibTest
 {
@@ -21,6 +23,22 @@ namespace ApexUtilLibTest
             try
             {
                 return value.charp;
+            }
+            catch (Exception)
+            {
+                return Convert.ToString(value);
+            }
+        }
+
+        public static string GetCharp(Dictionary<string,string> value)
+        {
+            try
+            {
+                var result = value.Where(c => c.Key == "charp").FirstOrDefault().Value;
+                if (result==null)
+                    result = value.Where(c => c.Key == "default").FirstOrDefault().Value;
+
+                return result;
             }
             catch (Exception)
             {
