@@ -10,7 +10,11 @@ namespace ApexUtilLibTest
     [TestFixture()]
     public class TestDataTest
     {
+<<<<<<< HEAD
         private string testDataPath = @"/Users/nsearch/OneDrive/Projects/test-suites-apex-api-security/testData/";
+=======
+        private string testDataPath = @"/Users/nsearch/Projects/test-suites-apex-api-security/testData/";
+>>>>>>> 7a1f1e293c4e284738a0f91c4876fb0628d7752b
 
         private ApiUtilLib.SignatureMethod signatureMethod { get; set; }
         private ApiUtilLib.HttpMethod httpMethod { get; set; }
