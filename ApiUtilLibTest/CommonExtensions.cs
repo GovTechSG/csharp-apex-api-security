@@ -15,6 +15,9 @@ namespace ApexUtilLibTest
         /// <returns></returns>
         public static T ToEnum<T>(this string value)
         {
+            if (value.IsNullOrEmpty())
+                return default(T);
+
             return (T)Enum.Parse(typeof(T), value, true);
         }
 

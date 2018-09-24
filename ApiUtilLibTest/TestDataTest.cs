@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Serialization;
+using System.Security.Cryptography;
 
 namespace ApexUtilLibTest
 {
@@ -11,6 +12,7 @@ namespace ApexUtilLibTest
     public class TestDataTest
     {
         private string testDataPath = @"/Users/nsearch/OneDrive/Projects/test-suites-apex-api-security/testData/";
+        private string testCertPath = @"/Users/nsearch/OneDrive/Projects/test-suites-apex-api-security/";
 
         private ApiUtilLib.SignatureMethod signatureMethod { get; set; }
         private ApiUtilLib.HttpMethod httpMethod { get; set; }
@@ -96,13 +98,20 @@ namespace ApexUtilLibTest
             }
         }
 
-        [Test()]
-        public void TestBaseString()
+        private IEnumerable<TestParam> GetJsonFile(string fileName)
         {
-            string path = testDataPath + "getSignatureBaseString.json";
+            string path = testDataPath + fileName;
 
             TestDataService service = new TestDataService();
             var jsonData = service.LoadTestFile(path);
+
+            return jsonData;
+        }
+
+        [Test()]
+        public void TestBaseString()
+        {
+            var jsonData = GetJsonFile("getSignatureBaseString.json");
             int expectedPass = jsonData.Count();
             int actualPass = 0;
 
@@ -138,6 +147,91 @@ namespace ApexUtilLibTest
 
         }
 
+        [Test()]
+        public void TestL1Signature()
+        {
+            var jsonData = GetJsonFile("verifyL1Signature.json");
+            int expectedPass = jsonData.Count();
+            int actualPass = 0;
 
+            try
+            {
+                foreach (var test in jsonData)
+                {
+                    SetDetaultParams(test);
+
+                    if (skipTest == null || !skipTest.Contains("c#"))
+                    {
+                        var message = test.message;
+                        var secret = test.apiParam.secret;
+                        var signature = test.apiParam.signature;
+                        var result = message.L1Signature(secret);
+                        try
+                        {
+                            Assert.AreEqual(signature, result);
+                            actualPass++;
+                        }
+                        catch (Exception)
+                        {
+                            if (expectedResult == "false")
+                                actualPass++;
+                        }
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
+            Assert.AreEqual(expectedPass, actualPass);
+        }
+
+        [Test()]
+        public void TestL2Signature()
+        {
+            var jsonData = GetJsonFile("verifyL2Signature.json");
+            int expectedPass = jsonData.Count();
+            int actualPass = 0;
+
+            try
+            {
+                foreach (var test in jsonData)
+                {
+                    SetDetaultParams(test);
+
+                    if (skipTest == null || !skipTest.Contains("c#"))
+                    {
+
+                        var message = test.message;
+                        var signature = test.apiParam.signature;
+                        string certPath = testCertPath + test.publicCertFileName;
+
+                        RSACryptoServiceProvider publicKey = ApiAuthorization.PublicKeyFromCer(certPath);
+
+                        var result = signature.VerifyL2Signature(publicKey, message);
+
+                        try
+                        {
+                            Assert.IsTrue(result);
+                            actualPass++;
+                        }
+                        catch (Exception)
+                        {
+                            if (expectedResult == "false")
+                                actualPass++;
+                        }
+                    }else{
+                        actualPass++;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+            Assert.AreEqual(expectedPass, actualPass);
+        }
     }
 }
