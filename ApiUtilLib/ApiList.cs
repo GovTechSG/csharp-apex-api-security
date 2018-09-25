@@ -46,7 +46,7 @@ namespace ApiUtilLib
 			}
             else
             {
-                foreach (var item in this)
+                 foreach (var item in this)
                 {
                     list.Add(string.Format(format, item.Key, item.Value));
                 }

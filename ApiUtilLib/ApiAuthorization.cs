@@ -106,6 +106,7 @@ namespace ApiUtilLib
         {
             Logger.LogEnterExit(LoggerBase.Args(certificateFileName, "***password***"));
 
+
             var privateCert = new X509Certificate2(System.IO.File.ReadAllBytes(certificateFileName), password, X509KeyStorageFlags.Exportable);
 
             var OriginalPrivateKey = (RSACryptoServiceProvider)privateCert.PrivateKey;
@@ -300,14 +301,14 @@ namespace ApiUtilLib
             var tokenList = new ApiList();
 
             tokenList.Add("realm", realm);
-            tokenList.Add(authPrefix + "_timestamp", timestamp);
-            tokenList.Add(authPrefix + "_nonce", nonce);
             tokenList.Add(authPrefix + "_app_id", appId);
+            tokenList.Add(authPrefix + "_nonce", nonce);
             tokenList.Add(authPrefix + "_signature_method", signatureMethod.ToString());
+            tokenList.Add(authPrefix + "_timestamp", timestamp);
 			tokenList.Add(authPrefix + "_version", version);
 			tokenList.Add(authPrefix + "_signature", base64Token);
 
-            string authorizationToken = string.Format("{0} {1}", authPrefix.Substring(0, 1).ToUpperInvariant() + authPrefix.Substring(1), tokenList.ToString(",", false, true));
+            string authorizationToken = string.Format("{0} {1}", authPrefix.Substring(0, 1).ToUpperInvariant() + authPrefix.Substring(1), tokenList.ToString(", ", false, true));
 
             Logger.LogDebug("Token :: {0}", authorizationToken);
 
