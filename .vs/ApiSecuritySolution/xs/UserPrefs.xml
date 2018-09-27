@@ -1,14 +1,12 @@
-﻿<Properties StartupConfiguration="{B6FD94F7-1689-4DAC-B823-0192E3CA3521}|Unit Tests">
+﻿<Properties>
   <MonoDevelop.Ide.Workbench ActiveDocument="development Status">
     <Files>
-      <File FileName="ApiUtilLibTest/TestDataService.cs" Line="25" Column="1" />
-      <File FileName="ApiUtilLibTest/TestDataTest.cs" Line="263" Column="1" />
-      <File FileName="ApiUtilLibTest/L1SignatureTest.cs" Line="26" Column="61" />
-      <File FileName="ApiUtilLib/ApiAuthorization.cs" Line="188" Column="54" />
-      <File FileName="ApiUtilLibTest/AuthorizationTokenTest.cs" Line="47" Column="49" />
-      <File FileName="ApiUtilLib/ApiList.cs" Line="20" Column="17" />
+      <File FileName="ApiUtilLibTest/TestDataTest.cs" Line="240" Column="37" />
+      <File FileName="ApiUtilLibTest/L1SignatureTest.cs" Line="23" Column="72" />
+      <File FileName="ApiUtilLib/ApiAuthorization.cs" Line="159" Column="1" />
       <File FileName="ApiUtilLibTest/CommonExtensions.cs" Line="121" Column="26" />
-      <File FileName="ApiUtilLibTest/BaseService.cs" Line="122" Column="9" />
+      <File FileName="ApiUtilLibTest/BaseService.cs" Line="122" Column="1" />
+      <File FileName="ApiUtilLibTest/L2SignatureTest.cs" Line="37" Column="74" />
       <File FileName="development Status" />
     </Files>
     <Pads>
@@ -21,7 +19,6 @@
                   <Node name="GetL2Signature" selected="True" />
                 </Node>
               </Node>
-              <Node name="ApiUtilLibTest" expanded="True" />
             </Node>
           </Node>
         </State>
@@ -31,8 +28,9 @@
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore>
-      <Breakpoint file="/Users/nsearch/OneDrive/Projects/APEXCSharp/development/ApiUtilLibTest/TestDataTest.cs" relfile="ApiUtilLibTest/TestDataTest.cs" line="271" column="1" />
-      <Breakpoint file="/Users/nsearch/OneDrive/Projects/APEXCSharp/development/ApiUtilLib/ApiAuthorization.cs" relfile="ApiUtilLib/ApiAuthorization.cs" line="188" column="1" />
+      <Breakpoint file="/Users/nsearch/OneDrive/Projects/APEXCSharp/development/ApiUtilLib/ApiAuthorization.cs" relfile="ApiUtilLib/ApiAuthorization.cs" line="196" column="1" />
+      <Breakpoint file="/Users/nsearch/OneDrive/Projects/APEXCSharp/development/ApiUtilLib/ApiAuthorization.cs" relfile="ApiUtilLib/ApiAuthorization.cs" line="180" column="1" />
+      <Breakpoint file="/Users/nsearch/OneDrive/Projects/APEXCSharp/development/ApiUtilLib/ApiAuthorization.cs" relfile="ApiUtilLib/ApiAuthorization.cs" line="137" column="1" />
     </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />

@@ -133,30 +133,44 @@ namespace ApiUtilLib
             }
         }
 
-        public static RSACryptoServiceProvider PrivateKeyFromPEM(string certificateFileName, string password)
+        public static string GetL2SignatureFromPEM(string filename, string message, string passPhrase)
         {
-            Logger.LogEnterExit(LoggerBase.Args(certificateFileName, "***password***"));
-            
-            var privateCert = LoadCertificateFile(certificateFileName, password);
-
-            var OriginalPrivateKey = (RSACryptoServiceProvider)privateCert.PrivateKey;
-
-            // Transfer the private key to overcome the following error...
-            // System.Security.Cryptography.CryptographicException "Invalid algorithm specified"
-            if (Environment.OSVersion.Platform == PlatformID.MacOSX || Environment.OSVersion.Platform == PlatformID.Unix)
+            Logger.LogEnterExit(LoggerBase.Args(filename, "***password***"));
+            string result = null;
+            try
             {
-                return OriginalPrivateKey;
-            }
-            else
-            {
-                var privateKey = new RSACryptoServiceProvider();
-                privateKey.ImportParameters(OriginalPrivateKey.ExportParameters(true));
+                using (FileStream fs = File.OpenRead(filename))
+                {
+                    AsymmetricCipherKeyPair keyPair;
+                    var obj = GetRSAProviderFromPem(File.ReadAllText(filename).Trim(), passPhrase);
+                    byte[] bytes = Encoding.UTF8.GetBytes(message);
+                    using (var reader = File.OpenText(filename)) // file containing RSA PKCS1 private key
+                        keyPair = (AsymmetricCipherKeyPair)new PemReader(reader, new PasswordFinder(passPhrase)).ReadObject();
+                    var decryptEngine = new Pkcs1Encoding(new RsaEngine());
 
-                return privateKey;
+                    decryptEngine.Init(false, keyPair.Private);
+                    var str = obj.SignData(bytes, CryptoConfig.MapNameToOID("SHA256"));
+
+                    result = System.Convert.ToBase64String(str);
+                }
             }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            return result;
         }
 
+        public static RSACryptoServiceProvider ImportPrivateKey(string pem)
+        {
+            PemReader pr = new PemReader(new StringReader(pem));
+            AsymmetricCipherKeyPair KeyPair = (AsymmetricCipherKeyPair)pr.ReadObject();
+            RSAParameters rsaParams = DotNetUtilities.ToRSAParameters((RsaPrivateCrtKeyParameters)KeyPair.Private);
 
+            RSACryptoServiceProvider csp = new RSACryptoServiceProvider();// cspParams);
+            csp.ImportParameters(rsaParams);
+            return csp;
+        }
 
 
         public static X509Certificate2 LoadCertificateFile(string filename, string passPhrase)
@@ -166,32 +180,24 @@ namespace ApiUtilLib
             {
                 using (FileStream fs = File.OpenRead(filename))
                 {
-                    //byte[] data = new byte[fs.Length];
-                    //fs.Read(data, 0, data.Length);
-
-                    //if (data[0] != 0x30)
-                    //{
-                    //    // maybe it's ASCII PEM base64 encoded ? 
-                    //    data = PEM("RSA PRIVATE KEY", data);
-                    //}
-                    //if (data != null)
-                        //x509 = new X509Certificate2(data, passPhrase, X509KeyStorageFlags.Exportable);
-
                     AsymmetricCipherKeyPair keyPair;
+                    var obj = GetRSAProviderFromPem(File.ReadAllText(filename).Trim(), passPhrase);
+                    byte[] bytes = Encoding.UTF8.GetBytes("message");
+                    using (var reader = File.OpenText(filename)) // file containing RSA PKCS1 private key
+                        keyPair = (AsymmetricCipherKeyPair)new PemReader(reader, new PasswordFinder(passPhrase)).ReadObject();
+                    var decryptEngine = new Pkcs1Encoding(new RsaEngine());
 
-                    //var _keyPair = ReadAsymmetricKeyParameter(data);
-                    var obj = GetRSAProviderFromPemFile(filename,passPhrase);
-                    //using (var reader = File.OpenText(filename)) // file containing RSA PKCS1 private key
-                    //    keyPair = (AsymmetricCipherKeyPair)new PemReader(reader).ReadObject();
-                    //var decryptEngine = new Pkcs1Encoding(new RsaEngine());
-                    //decryptEngine.Init(false, keyPair.Private);
-                    var str = obj.ToXmlString(false);
-                    //var decrypted = Encoding.UTF8.GetString(decryptEngine.ProcessBlock(data, 0, data.Length));
+                    decryptEngine.Init(false, keyPair.Private);
+                    var str = obj.SignData(bytes, CryptoConfig.MapNameToOID("SHA256"));
+
+                    var base64 = System.Convert.ToBase64String(str);
+
+                    var privateCert = new X509Certificate2(base64, passPhrase, X509KeyStorageFlags.Exportable);
                 }
             }
             catch (Exception ex)
             {
-                throw ex;
+                //throw ex;
             }
             return x509;
         }
@@ -218,22 +224,23 @@ namespace ApiUtilLib
             };
             IPasswordFinder pwd;
             PemReader reader;
-            if (password.IsNullOrEmpty())
-            {
-                reader = new PemReader(new StringReader(pemstr));
-            }else{
-                reader = new PemReader(new StringReader(pemstr), new PasswordFinder(password));
-            }
+            reader = new PemReader(new StringReader(pemstr), new PasswordFinder(password));
             object kp = reader.ReadObject();
 
+            if (kp.GetType().GetProperty("Private") != null)
+            {
+                return MakePrivateRCSP(rsaKey, (RsaPrivateCrtKeyParameters)(((AsymmetricCipherKeyPair)kp).Private));
+            }
+            else
+            {
+                return MakePublicRCSP(rsaKey, (RsaKeyParameters)kp);
+            }
+                
             // If object has Private/Public property, we have a Private PEM
-            return (kp.GetType().GetProperty("Private") != null) ? MakePrivateRCSP(rsaKey, (RsaPrivateCrtKeyParameters)(((AsymmetricCipherKeyPair)kp).Private)) : MakePublicRCSP(rsaKey, (RsaKeyParameters)kp);
+            //return (kp.GetType().GetProperty("Private") != null) ? MakePrivateRCSP(rsaKey, (RsaPrivateCrtKeyParameters)(((AsymmetricCipherKeyPair)kp).Private)) : MakePublicRCSP(rsaKey, (RsaKeyParameters)kp);
         }
 
-        public static RSACryptoServiceProvider GetRSAProviderFromPemFile(String pemfile, string password)
-        {
-            return GetRSAProviderFromPem(File.ReadAllText(pemfile).Trim(),password);
-        }
+
 
         public static byte[] PEM(string type, byte[] data)
         {

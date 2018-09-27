@@ -258,13 +258,11 @@ namespace ApexUtilLibTest
                             string certName = test.apiParam.privateCertFileName;
                             string privateCertPath = testCertPath + certName;
 
-                            RSACryptoServiceProvider privateKey = null;
+                            string privateKey = null;
                             if (!certName.IsNullOrEmpty())
-                              privateKey = ApiAuthorization.PrivateKeyFromPEM(privateCertPath, passphrase);
+                              privateKey = ApiAuthorization.GetL2SignatureFromPEM(privateCertPath,message, passphrase);
 
-                            var result = message.L2Signature(privateKey);
-
-                            Assert.AreEqual(expectedResult, result);
+                            Assert.AreEqual(expectedResult, privateKey);
                             actualPass++;
                         }
                         catch (Exception ex)
