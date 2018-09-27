@@ -9,6 +9,13 @@ using System.Collections.Generic;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json;
 using System.Linq;
+using Org.BouncyCastle;
+using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.OpenSsl;
+using Org.BouncyCastle.Crypto.Encodings;
+using Org.BouncyCastle.Crypto.Engines;
+using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.Security;
 
 namespace ApiUtilLib
 {
@@ -124,6 +131,119 @@ namespace ApiUtilLib
 
                 return privateKey;
             }
+        }
+
+        public static RSACryptoServiceProvider PrivateKeyFromPEM(string certificateFileName, string password)
+        {
+            Logger.LogEnterExit(LoggerBase.Args(certificateFileName, "***password***"));
+            
+            var privateCert = LoadCertificateFile(certificateFileName, password);
+
+            var OriginalPrivateKey = (RSACryptoServiceProvider)privateCert.PrivateKey;
+
+            // Transfer the private key to overcome the following error...
+            // System.Security.Cryptography.CryptographicException "Invalid algorithm specified"
+            if (Environment.OSVersion.Platform == PlatformID.MacOSX || Environment.OSVersion.Platform == PlatformID.Unix)
+            {
+                return OriginalPrivateKey;
+            }
+            else
+            {
+                var privateKey = new RSACryptoServiceProvider();
+                privateKey.ImportParameters(OriginalPrivateKey.ExportParameters(true));
+
+                return privateKey;
+            }
+        }
+
+
+
+
+        public static X509Certificate2 LoadCertificateFile(string filename, string passPhrase)
+        {
+            X509Certificate2 x509 = null;
+            try
+            {
+                using (FileStream fs = File.OpenRead(filename))
+                {
+                    //byte[] data = new byte[fs.Length];
+                    //fs.Read(data, 0, data.Length);
+
+                    //if (data[0] != 0x30)
+                    //{
+                    //    // maybe it's ASCII PEM base64 encoded ? 
+                    //    data = PEM("RSA PRIVATE KEY", data);
+                    //}
+                    //if (data != null)
+                        //x509 = new X509Certificate2(data, passPhrase, X509KeyStorageFlags.Exportable);
+
+                    AsymmetricCipherKeyPair keyPair;
+
+                    //var _keyPair = ReadAsymmetricKeyParameter(data);
+                    var obj = GetRSAProviderFromPemFile(filename,passPhrase);
+                    //using (var reader = File.OpenText(filename)) // file containing RSA PKCS1 private key
+                    //    keyPair = (AsymmetricCipherKeyPair)new PemReader(reader).ReadObject();
+                    //var decryptEngine = new Pkcs1Encoding(new RsaEngine());
+                    //decryptEngine.Init(false, keyPair.Private);
+                    var str = obj.ToXmlString(false);
+                    //var decrypted = Encoding.UTF8.GetString(decryptEngine.ProcessBlock(data, 0, data.Length));
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            return x509;
+        }
+
+
+        public static RSACryptoServiceProvider GetRSAProviderFromPem(String pemstr, string password)
+        {
+            CspParameters cspParameters = new CspParameters();
+            cspParameters.KeyContainerName = "MyKeyContainer";
+            RSACryptoServiceProvider rsaKey = new RSACryptoServiceProvider(cspParameters);
+
+            Func<RSACryptoServiceProvider, RsaKeyParameters, RSACryptoServiceProvider> MakePublicRCSP = (RSACryptoServiceProvider rcsp, RsaKeyParameters rkp) =>
+            {
+                RSAParameters rsaParameters = DotNetUtilities.ToRSAParameters(rkp);
+                rcsp.ImportParameters(rsaParameters);
+                return rsaKey;
+            };
+
+            Func<RSACryptoServiceProvider, RsaPrivateCrtKeyParameters, RSACryptoServiceProvider> MakePrivateRCSP = (RSACryptoServiceProvider rcsp, RsaPrivateCrtKeyParameters rkp) =>
+            {
+                RSAParameters rsaParameters = DotNetUtilities.ToRSAParameters(rkp);
+                rcsp.ImportParameters(rsaParameters);
+                return rsaKey;
+            };
+            IPasswordFinder pwd;
+            PemReader reader;
+            if (password.IsNullOrEmpty())
+            {
+                reader = new PemReader(new StringReader(pemstr));
+            }else{
+                reader = new PemReader(new StringReader(pemstr), new PasswordFinder(password));
+            }
+            object kp = reader.ReadObject();
+
+            // If object has Private/Public property, we have a Private PEM
+            return (kp.GetType().GetProperty("Private") != null) ? MakePrivateRCSP(rsaKey, (RsaPrivateCrtKeyParameters)(((AsymmetricCipherKeyPair)kp).Private)) : MakePublicRCSP(rsaKey, (RsaKeyParameters)kp);
+        }
+
+        public static RSACryptoServiceProvider GetRSAProviderFromPemFile(String pemfile, string password)
+        {
+            return GetRSAProviderFromPem(File.ReadAllText(pemfile).Trim(),password);
+        }
+
+        public static byte[] PEM(string type, byte[] data)
+        {
+            string pem = Encoding.ASCII.GetString(data);
+            string header = String.Format("-----BEGIN {0}-----", type);
+            string footer = String.Format("-----END {0}-----", type);
+            int start = pem.IndexOf(header) + header.Length;
+            int end = pem.IndexOf(footer, start);
+            string base64 = pem.Substring(start, (end - start));
+            return Convert.FromBase64String(base64);
         }
 
         public static RSACryptoServiceProvider PublicKeyFromCer(string certificateFileName)
@@ -444,5 +564,24 @@ namespace ApiUtilLib
                 Console.WriteLine("{0}", ex);
             }
         }
+
+        private class PasswordFinder : IPasswordFinder
+        {
+            private string password;
+
+            public PasswordFinder(string password)
+            {
+                this.password = password;
+            }
+
+
+            public char[] GetPassword()
+            {
+                return password.ToCharArray();
+            }
+        }
+
     }
+
+
 }

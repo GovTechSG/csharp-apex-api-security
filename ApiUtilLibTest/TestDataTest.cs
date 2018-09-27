@@ -39,6 +39,10 @@ namespace ApexUtilLibTest
                             ex = ex;
                         }
                     }
+                    else
+                    {
+                        actualPass++;
+                    }
                 }
             }
             catch (Exception ex)
@@ -51,7 +55,7 @@ namespace ApexUtilLibTest
         }
 
         [Test()]
-        public void TestL1Signature()
+        public void VerifyL1Signature()
         {
             var jsonData = GetJsonFile("verifyL1Signature.json");
             int expectedPass = jsonData.Count();
@@ -67,10 +71,10 @@ namespace ApexUtilLibTest
                     {
                         var message = test.message;
                         var signature = test.apiParam.signature;
-                        var result = message.L1Signature(secret);
+                        var result = signature.VerifyL1Signature(secret,message);
                         try
                         {
-                            Assert.AreEqual(signature, result);
+                            Assert.AreEqual(expectedResult.ToBool(),result);
                             actualPass++;
                         }
                         catch (Exception)
@@ -78,6 +82,10 @@ namespace ApexUtilLibTest
                             if (expectedResult == "false")
                                 actualPass++;
                         }
+                    }
+                    else
+                    {
+                        actualPass++;
                     }
                 }
             }
@@ -90,7 +98,7 @@ namespace ApexUtilLibTest
         }
 
         [Test()]
-        public void TestL2Signature()
+        public void VerifyL2Signature()
         {
             var jsonData = GetJsonFile("verifyL2Signature.json");
             int expectedPass = jsonData.Count();
@@ -156,7 +164,7 @@ namespace ApexUtilLibTest
                             var signature = test.apiParam.signature;
                             string certName = test.apiParam.privateCertFileName;
                             string privateCertPath = testCertPath + certName;
-                            const string passphrase = "passwordp12";
+
                             RSACryptoServiceProvider privateKey = null;
                             if (!certName.IsNullOrEmpty())
                                 privateKey = ApiAuthorization.PrivateKeyFromP12(privateCertPath, passphrase);
@@ -182,6 +190,102 @@ namespace ApexUtilLibTest
                 throw;
             }
             Assert.AreEqual(expectedPass, actualPass);
+        }
+
+        [Test()]
+        public void GetL1Signature()
+        {
+            var jsonData = GetJsonFile("getL1Signature.json");
+            int expectedPass = jsonData.Count();
+            int actualPass = 0;
+
+            try
+            {
+                foreach (var test in jsonData)
+                {
+                    SetDetaultParams(test);
+
+                    if (skipTest == null || !skipTest.Contains("c#"))
+                    {
+                        var message = test.message;
+                        var signature = test.apiParam.signature;
+                        try
+                        {
+                            var result = message.L1Signature(secret);
+                            Assert.AreEqual(expectedResult, result);
+                            actualPass++;
+                        }
+                        catch (Exception)
+                        {
+                            if (errorTest)
+                                actualPass++;
+                        }
+                    }
+                    else
+                    {
+                        actualPass++;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+            Assert.AreEqual(expectedPass, actualPass);
+
+        }
+
+        [Test()]
+        public void GetL2Signature()
+        {
+            var jsonData = GetJsonFile("getL2Signature.json");
+            int expectedPass = jsonData.Count();
+            int actualPass = 0;
+
+            try
+            {
+                foreach (var test in jsonData)
+                {
+                    SetDetaultParams(test);
+
+                    if (skipTest == null || !skipTest.Contains("c#"))
+                    {
+                        try
+                        {
+                            var message = test.message;
+                            var signature = test.apiParam.signature;
+                            string certName = test.apiParam.privateCertFileName;
+                            string privateCertPath = testCertPath + certName;
+
+                            RSACryptoServiceProvider privateKey = null;
+                            if (!certName.IsNullOrEmpty())
+                              privateKey = ApiAuthorization.PrivateKeyFromPEM(privateCertPath, passphrase);
+
+                            var result = message.L2Signature(privateKey);
+
+                            Assert.AreEqual(expectedResult, result);
+                            actualPass++;
+                        }
+                        catch (Exception ex)
+                        {
+                            if (errorTest)
+                                actualPass++;
+                        }
+                    }
+                    else
+                    {
+                        actualPass++;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+            Assert.AreEqual(expectedPass, actualPass);
+
         }
     }
 }

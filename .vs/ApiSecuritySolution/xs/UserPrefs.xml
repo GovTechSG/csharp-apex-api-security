@@ -1,14 +1,15 @@
-﻿<Properties>
-  <MonoDevelop.Ide.Workbench ActiveDocument="ApiUtilLibTest/TestDataTest.cs">
+﻿<Properties StartupConfiguration="{B6FD94F7-1689-4DAC-B823-0192E3CA3521}|Unit Tests">
+  <MonoDevelop.Ide.Workbench ActiveDocument="development Status">
     <Files>
       <File FileName="ApiUtilLibTest/TestDataService.cs" Line="25" Column="1" />
-      <File FileName="ApiUtilLibTest/TestDataTest.cs" Line="169" Column="2" />
-      <File FileName="ApiUtilLibTest/L1SignatureTest.cs" Line="23" Column="59" />
-      <File FileName="ApiUtilLib/ApiAuthorization.cs" Line="280" Column="13" />
-      <File FileName="ApiUtilLibTest/L2SignatureTest.cs" Line="59" Column="41" />
-      <File FileName="development Status" />
+      <File FileName="ApiUtilLibTest/TestDataTest.cs" Line="263" Column="1" />
+      <File FileName="ApiUtilLibTest/L1SignatureTest.cs" Line="26" Column="61" />
+      <File FileName="ApiUtilLib/ApiAuthorization.cs" Line="188" Column="54" />
       <File FileName="ApiUtilLibTest/AuthorizationTokenTest.cs" Line="47" Column="49" />
       <File FileName="ApiUtilLib/ApiList.cs" Line="20" Column="17" />
+      <File FileName="ApiUtilLibTest/CommonExtensions.cs" Line="121" Column="26" />
+      <File FileName="ApiUtilLibTest/BaseService.cs" Line="122" Column="9" />
+      <File FileName="development Status" />
     </Files>
     <Pads>
       <Pad Id="MonoDevelop.UnitTesting.TestPad">
@@ -17,7 +18,7 @@
             <Node name="ApiUtilLibTest" expanded="True">
               <Node name="ApexUtilLibTest" expanded="True">
                 <Node name="TestDataTest" expanded="True">
-                  <Node name="TestTokenSignature" selected="True" />
+                  <Node name="GetL2Signature" selected="True" />
                 </Node>
               </Node>
               <Node name="ApiUtilLibTest" expanded="True" />
@@ -30,10 +31,11 @@
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore>
-      <Breakpoint file="/Users/nsearch/OneDrive/Projects/APEXCSharp/development/ApiUtilLib/ApiAuthorization.cs" relfile="ApiUtilLib/ApiAuthorization.cs" line="270" column="1" />
-      <Breakpoint file="/Users/nsearch/OneDrive/Projects/APEXCSharp/development/ApiUtilLibTest/TestDataTest.cs" relfile="ApiUtilLibTest/TestDataTest.cs" line="169" column="1" />
+      <Breakpoint file="/Users/nsearch/OneDrive/Projects/APEXCSharp/development/ApiUtilLibTest/TestDataTest.cs" relfile="ApiUtilLibTest/TestDataTest.cs" line="271" column="1" />
+      <Breakpoint file="/Users/nsearch/OneDrive/Projects/APEXCSharp/development/ApiUtilLib/ApiAuthorization.cs" relfile="ApiUtilLib/ApiAuthorization.cs" line="188" column="1" />
     </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.ItemProperties.ApiUtilLibTest PreferredExecutionTarget="MonoDevelop.Default" />
   <MultiItemStartupConfigurations />
 </Properties>

@@ -107,5 +107,18 @@ namespace ApexUtilLibTest
 
             return value;
         }
+
+        public static bool ToBool(this string value)
+        {
+            if(!value.IsNullOrEmpty()){
+                if (value.ToLower() == "true")
+                    return true;
+
+                if (value.ToLower() == "false")
+                    return false;
+            }
+
+            return false;
+        }
     }
 }

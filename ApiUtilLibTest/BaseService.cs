@@ -1,6 +1,11 @@
-﻿using ApiUtilLib;
+﻿using ApexUtilLib;
+using ApiUtilLib;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Security.Cryptography;
+using System.Text;
+
 namespace ApexUtilLibTest
 {
     public class BaseService
@@ -24,6 +29,7 @@ namespace ApexUtilLibTest
         internal string realm { get; set; }
         internal Uri invokeUrl { get; set; }
         internal string secret { get; set; }
+        internal string passphrase { get; set; }
 
         public BaseService()
         {
@@ -53,6 +59,7 @@ namespace ApexUtilLibTest
                 invokeUrl = paramFile.apiParam.invokeURL.IsNullOrEmpty() == true ? null : new System.Uri(paramFile.apiParam.invokeURL);
                 secret = paramFile.apiParam.secret ?? null;
                 realm = paramFile.apiParam.realm ?? null;
+                passphrase = paramFile.apiParam.passphrase;// ?? "passwordp12";
             }
             catch (Exception ex)
             {
@@ -113,5 +120,16 @@ namespace ApexUtilLibTest
             return jsonData;
         }
 
+
+        public static byte[] PEM(string type, byte[] data)
+        {
+            string pem = Encoding.ASCII.GetString(data);
+            string header = String.Format("-----BEGIN {0}-----", type);
+            string footer = String.Format("-----END {0}-----", type);
+            int start = pem.IndexOf(header) + header.Length;
+            int end = pem.IndexOf(footer, start);
+            string base64 = pem.Substring(start, (end - start));
+            return Convert.FromBase64String(base64);
+        }
     }
 }
