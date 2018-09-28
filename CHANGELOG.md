@@ -2,8 +2,6 @@
 
 ## Added 
 
-### V1.0-SNAPSHOT
-+ 2018-09-10 - Bug Fixes.
 ### V1.1-SNAPSHOT
 + 2018-09-10 - Bug Fixes.
 ### V1.2-SNAPSHOT
