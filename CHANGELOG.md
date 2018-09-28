@@ -17,3 +17,5 @@
 + 2018-09-13 - Bug fixes to sort list by ordinal comparison.
 >>>>>>> c497ab18107ff73a20517d3e48ec75d71856a473
 >>>>>>> 7a1f1e293c4e284738a0f91c4876fb0628d7752b
+### V1.3-SNAPSHOT
++ 2018-09-28 - Added functionality to handle json test cases.
