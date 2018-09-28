@@ -160,8 +160,6 @@ namespace ApexUtilLibTest
                     {
                         try
                         {
-                            var message = test.message;
-                            var signature = test.apiParam.signature;
                             string certName = test.apiParam.privateCertFileName;
                             string privateCertPath = testCertPath + certName;
 
@@ -208,7 +206,6 @@ namespace ApexUtilLibTest
                     if (skipTest == null || !skipTest.Contains("c#"))
                     {
                         var message = test.message;
-                        var signature = test.apiParam.signature;
                         try
                         {
                             var result = message.L1Signature(secret);
@@ -254,7 +251,6 @@ namespace ApexUtilLibTest
                         try
                         {
                             var message = test.message;
-                            var signature = test.apiParam.signature;
                             string certName = test.apiParam.privateCertFileName;
                             string privateCertPath = testCertPath + certName;
 
