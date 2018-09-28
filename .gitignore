@@ -1,7 +1,11 @@
 # Autosave files
 *~
 
-
+# build
+[Oo]bj/
+[Bb]in/
+packages/
+TestResults/
 
 # globs
 Makefile.in
