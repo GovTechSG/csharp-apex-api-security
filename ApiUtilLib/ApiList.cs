@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Collections;
+using ApexUtilLib;
 
 namespace ApiUtilLib
 {
@@ -27,13 +29,12 @@ namespace ApiUtilLib
                 // sort by key, than by value
 				var sortedList = this.OrderBy(k => k.Key,StringComparer.Ordinal).ThenBy(v => v.Value,StringComparer.Ordinal); //Fixed issue to sort by capital letter.
 
-
 				foreach (var item in sortedList)
 				{
                     format = "{0}={1}";
                     if (quote) format = "{0}=\"{1}\"";   
 
-                    if (item.Value == null && !quote)
+                    if (item.Value.IsNullOrEmpty() && !quote)
                     {
                         list.Add(string.Format("{0}", item.Key, item.Value));
                     }
@@ -45,7 +46,7 @@ namespace ApiUtilLib
 			}
             else
             {
-                foreach (var item in this)
+                 foreach (var item in this)
                 {
                     list.Add(string.Format(format, item.Key, item.Value));
                 }
