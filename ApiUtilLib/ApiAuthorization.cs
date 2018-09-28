@@ -118,8 +118,6 @@ namespace ApiUtilLib
 
             var OriginalPrivateKey = (RSACryptoServiceProvider)privateCert.PrivateKey;
 
-            // Transfer the private key to overcome the following error...
-            // System.Security.Cryptography.CryptographicException "Invalid algorithm specified"
             if (Environment.OSVersion.Platform == PlatformID.MacOSX || Environment.OSVersion.Platform == PlatformID.Unix)
             {
                 return OriginalPrivateKey;
@@ -144,7 +142,8 @@ namespace ApiUtilLib
                     AsymmetricCipherKeyPair keyPair;
                     var obj = GetRSAProviderFromPem(File.ReadAllText(filename).Trim(), passPhrase);
                     byte[] bytes = Encoding.UTF8.GetBytes(message);
-                    using (var reader = File.OpenText(filename)) // file containing RSA PKCS1 private key
+
+                    using (var reader = File.OpenText(filename)) 
                         keyPair = (AsymmetricCipherKeyPair)new PemReader(reader, new PasswordFinder(passPhrase)).ReadObject();
                     var decryptEngine = new Pkcs1Encoding(new RsaEngine());
 
@@ -167,7 +166,7 @@ namespace ApiUtilLib
             AsymmetricCipherKeyPair KeyPair = (AsymmetricCipherKeyPair)pr.ReadObject();
             RSAParameters rsaParams = DotNetUtilities.ToRSAParameters((RsaPrivateCrtKeyParameters)KeyPair.Private);
 
-            RSACryptoServiceProvider csp = new RSACryptoServiceProvider();// cspParams);
+            RSACryptoServiceProvider csp = new RSACryptoServiceProvider();
             csp.ImportParameters(rsaParams);
             return csp;
         }
@@ -183,7 +182,8 @@ namespace ApiUtilLib
                     AsymmetricCipherKeyPair keyPair;
                     var obj = GetRSAProviderFromPem(File.ReadAllText(filename).Trim(), passPhrase);
                     byte[] bytes = Encoding.UTF8.GetBytes("message");
-                    using (var reader = File.OpenText(filename)) // file containing RSA PKCS1 private key
+
+                    using (var reader = File.OpenText(filename)) 
                         keyPair = (AsymmetricCipherKeyPair)new PemReader(reader, new PasswordFinder(passPhrase)).ReadObject();
                     var decryptEngine = new Pkcs1Encoding(new RsaEngine());
 
@@ -197,7 +197,7 @@ namespace ApiUtilLib
             }
             catch (Exception ex)
             {
-                //throw ex;
+                throw ex;
             }
             return x509;
         }
@@ -236,8 +236,7 @@ namespace ApiUtilLib
                 return MakePublicRCSP(rsaKey, (RsaKeyParameters)kp);
             }
                 
-            // If object has Private/Public property, we have a Private PEM
-            //return (kp.GetType().GetProperty("Private") != null) ? MakePrivateRCSP(rsaKey, (RsaPrivateCrtKeyParameters)(((AsymmetricCipherKeyPair)kp).Private)) : MakePublicRCSP(rsaKey, (RsaKeyParameters)kp);
+
         }
 
 
