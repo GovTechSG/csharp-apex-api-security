@@ -74,20 +74,20 @@ The ApiUtilLib Library provide the utility class ApiList to construct request Qu
 public static void L1Sample()
 {
     // application realm
-    string realm = "http://example.api.com/test";
+    string realm = "<<your_client_host_url>>";
 
-    // authorization prefix
-    string authPrefix = "auth_l1";
+    // authorization prefix (i.e 'Apex_l1_eg' )
+    string authPrefix = "<<authPrefix>>";
 
     // app id and app secret assign to the application
-    string appId = "app-id-lpX54CVNltS0ye03v2mQc0b";
-    string appSecret = "5aes9wG4mQgWJBfKMuYLtrEtNslm1enWG2XpGaMk";
+    string appId = "<<appId>>";
+    string appSecret = "<<appSecret>>";
 
-    // api signing gateway name and path
-    string gatewayName = "example.api.com";
+    // api signing Internet gateway name and path (for Intranet i.e <tenant>-pvt.i.api.gov.sg)
+    string signingGateway = "<tenant>.e.api.gov.sg";
     string apiPath = "api/v1/l1/";
 
-    // query string
+    // query string (optional)
     var queryParam = new ApiUtilLib.ApiList();
 
     queryParam.Add("clientId", "1256-1231-4598");
@@ -96,9 +96,9 @@ public static void L1Sample()
 
     string queryString = queryParam.ToQueryString();
 
-    string baseUrl = string.Format("https://{0}/{1}?{2}", gatewayName, apiPath, queryString);
+    string baseUrl = string.Format("https://{0}/{1}?{2}", signingGateway, apiPath, queryString);
 
-    // form data
+    // form data (optional)
     var formData = new ApiUtilLib.ApiList();
 
     formData.Add("phoneNo", "+1 1234 4567 890");
@@ -110,8 +110,8 @@ public static void L1Sample()
 
     Console.WriteLine("\n>>>Authorization Header :: '{0}'<<<", authorizationHeader);
 
-    // if the target gateway name is different from signing gateway name
-    string targetGatewayName = "example.e.api.com";
+    // no need append .e on the target Internet gateway name (for Intranet i.e <tenant>-pvt.api.gov.sg)
+    string targetGatewayName = "<tenant>.api.gov.sg";
     string targetBaseUrl = string.Format("https://{0}/{1}?{2}", targetGatewayName, apiPath, queryString);
 
     // this method only for verification only
@@ -125,19 +125,19 @@ public static void L1Sample()
 public static void L2Sample()
 {
     // application realm
-    string realm = "http://example.api.com/test";
+    string realm = "<<your_client_host_url>>";
 
-    // authorization prefix
-    string authPrefix = "auth_l2";
+    // authorization prefix (i.e 'Apex_l2_eg' )
+    string authPrefix = "<<authPrefix>>";
 
-    // app id assign to the application
-    string appId = "app-id-lpX54CVNltS0ye03v2mQc0b";
+    // app id i.e 'Apex_l2_eg' assign to the application
+    string appId = "<<appId>>";
 
-    // api signing gateway name and path
-    string gatewayName = "example.api.com";
+    // api signing gateway name and path (for Intranet i.e <tenant>-pvt.i.api.gov.sg)
+    string signingGateway = "<tenant>.e.api.gov.sg";
     string apiPath = "api/v1/l2/";
 
-    // query string
+    // query string (optional)
     var queryParam = new ApiUtilLib.ApiList();
 
     queryParam.Add("clientId", "1256-1231-4598");
@@ -146,9 +146,9 @@ public static void L2Sample()
 
     string queryString = queryParam.ToQueryString();
 
-    string baseUrl = string.Format("https://{0}/{1}?{2}", gatewayName, apiPath, queryString);
+    string baseUrl = string.Format("https://{0}/{1}?{2}", signingGateway, apiPath, queryString);
 
-    // form data
+    // form data (optional)
     var formData = new ApiUtilLib.ApiList();
 
     formData.Add("phoneNo", "+1 1234 4567 890");
@@ -165,8 +165,8 @@ public static void L2Sample()
     // authorization header
     var authorizationHeader = ApiAuthorization.Token(realm, authPrefix, HttpMethod.POST, new Uri(baseUrl), appId, null, formData, privateKey);
 
-    // if the target gateway name is different from signing gateway name
-    string targetGatewayName = "example.e.api.com";
+    // no need append .e on the target gateway name (for Intranet i.e <tenant>-pvt.api.gov.sg)
+    string targetGatewayName = "<tenant>.api.gov.sg";
     string targetBaseUrl = string.Format("https://{0}/{1}?{2}", targetGatewayName, apiPath, queryString);
 
     // this method only for verification only
