@@ -72,7 +72,7 @@ The ApiUtilLib Library provide the utility class ApiList to construct request Qu
 **NOTE** 
 
 For **formData** parameter used for Signature generation, the key value parameters **do not** need to be URL encoded, 
-When your client program is making the actual HTTP POST call, the key value parameters **has** to be URL encoded
+When you use this client library method **ApiAuthorization.HttpRequest**, it will do the url-encoding during the HTTP call
 
 ### How to Generate HMAC256 L1 Authorization Header
 ```
@@ -185,6 +185,53 @@ static string GetLocalPath(string relativeFileName)
 
     return localPath;
 }
+```
+#### Sample HTTP POST Call for x-www-form-urlencoded with APEX L1 Security (for reference only)
+
+```
+[Test]
+public static void Http_Call_Test()
+{
+    // application realm
+    string realm = "http://example.api.test/token";
+
+    // authorization prefix
+    string authPrefix = "Apex_l1_eg";
+
+    // app id and app secret assign to the application
+    string appId = "tenant-1X2w7NQPzjO2azDu904XI5AE";
+    string appSecret = "s0m3s3cr3t";
+    var formData = new ApiUtilLib.ApiList();
+
+    formData.Add("key1", "value1);
+    formData.Add("key2", "value2");
+    
+    // api signing gateway name and path
+    string gatewayName = "https://tenant.e.api.gov.sg";
+    string apiPath = "api14021live/resource";
+    string baseUrl = string.Format("{0}/{1}", gatewayName, apiPath);
+    Console.WriteLine("\n>>>baseUrl :: '{0}'<<<", baseUrl);
+    Console.WriteLine("\n>>>appId :: '{0}'<<<", appId);
+    Console.WriteLine("\n>>>appSecret :: '{0}'<<<", appSecret);
+    // authorization header
+    var authorizationHeader = ApiAuthorization.Token(realm, authPrefix, HttpMethod.POST, new Uri(baseUrl), appId, appSecret, formData);
+
+    Console.WriteLine("\n>>>Authorization Header :: '{0}'<<<", authorizationHeader);
+
+    // if the target gateway name is different from signing gateway name
+    string targetBaseUrl = "https://tenant.api.gov.sg/api14021live/resource";
+
+
+    // this method only for verification only
+    // expecting result to be 200
+
+    var result = ApiAuthorization.HttpRequest(new Uri(targetBaseUrl), authorizationHeader, formData, HttpMethod.POST, ignoreServerCert: true);
+    Console.WriteLine(result);
+    Console.ReadLine();
+
+    Assert.True(true);
+}
+
 ```
 
 ## Release
