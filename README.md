@@ -69,6 +69,11 @@ The ApiUtilLib Library provide the utility class ApiList to construct request Qu
     // phoneNo=%2B1+1234+4567+890&street=Hellowood+Street&state=AP
 ```
 
+**NOTE** 
+
+For **formData** parameter used for Signature generation, the key value parameters **do not** need to be URL encoded, 
+When your client program is making the actual HTTP POST call, the key value parameters **has** to be URL encoded
+
 ### How to Generate HMAC256 L1 Authorization Header
 ```
 public static void L1Sample()
