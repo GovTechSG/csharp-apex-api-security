@@ -5,13 +5,16 @@ using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
+using System.IO.Compression;
+using System.Reflection;
 
 namespace ApexUtilLibTest
 {
     public class BaseService
     {
-        internal string testDataPath = @"/Users/nsearch/OneDrive/Projects/GovTech/testData/";
-        internal string testCertPath = @"/Users/nsearch/OneDrive/Projects/GovTech/";
+        internal string apexTestSuitePath = "https://github.com/GovTechSG/test-suites-apex-api-security/archive/master.zip";
+        internal string testDataPath = GetLocalPath("temp/test-suites-apex-api-security-master/testData/");
+        internal string testCertPath = GetLocalPath("temp/test-suites-apex-api-security-master/");
 
         internal ApiUtilLib.SignatureMethod signatureMethod { get; set; }
         internal ApiUtilLib.HttpMethod httpMethod { get; set; }
@@ -33,6 +36,59 @@ namespace ApexUtilLibTest
 
         public BaseService()
         {
+            downloadFile(apexTestSuitePath, GetLocalPath("testSuite.zip"));
+        }
+
+
+
+        internal static string GetLocalPath(string relativeFileName)
+        {
+            var localPath = Path.Combine(Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath), relativeFileName.Replace('/', Path.DirectorySeparatorChar));
+            return localPath;
+        }
+        internal void downloadFile(string sourceURL, string downloadPath)
+        {
+            try
+            {
+                long fileSize = 0;
+                int bufferSize = 1024;
+                bufferSize *= 1000;
+                long existLen = 0;
+                System.IO.FileStream saveFileStream;
+                saveFileStream = new System.IO.FileStream(downloadPath,
+                                                          System.IO.FileMode.Create,
+                                                          System.IO.FileAccess.Write,
+                                                          System.IO.FileShare.ReadWrite);
+
+                System.Net.HttpWebRequest httpReq;
+                System.Net.HttpWebResponse httpRes;
+                httpReq = (System.Net.HttpWebRequest)System.Net.WebRequest.Create(sourceURL);
+                httpReq.AddRange((int)existLen);
+                System.IO.Stream resStream;
+                httpRes = (System.Net.HttpWebResponse)httpReq.GetResponse();
+                resStream = httpRes.GetResponseStream();
+
+                fileSize = httpRes.ContentLength;
+                int byteSize;
+                byte[] downBuffer = new byte[bufferSize];
+
+                while ((byteSize = resStream.Read(downBuffer, 0, downBuffer.Length)) > 0)
+                {
+                    saveFileStream.Write(downBuffer, 0, byteSize);
+                }
+                saveFileStream.Close();
+
+                if (System.IO.Directory.Exists(GetLocalPath("temp/")))
+                {
+                    Directory.Delete(GetLocalPath("temp/"), true);
+                }
+                ZipFile.ExtractToDirectory(downloadPath, GetLocalPath("temp/"));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Exception: " + ex);
+                throw ex;
+            }
         }
 
         internal void SetDetaultParams(TestParam paramFile)
@@ -109,7 +165,7 @@ namespace ApexUtilLibTest
             }
         }
 
-        internal IEnumerable<TestParam> 
+        internal IEnumerable<TestParam>
         GetJsonFile(string fileName)
         {
             string path = testDataPath + fileName;
