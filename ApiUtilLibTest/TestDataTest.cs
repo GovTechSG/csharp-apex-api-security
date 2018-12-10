@@ -144,7 +144,7 @@ namespace ApexUtilLibTest
             Assert.AreEqual(expectedPass, actualPass);
         }
 
-        [Test()]
+        //[Test()]
         public void TestTokenSignature()
         {
             var jsonData = GetJsonFile("getSignatureToken.json");
@@ -233,7 +233,7 @@ namespace ApexUtilLibTest
 
         }
 
-        [Test()]
+        //[Test()]
         public void GetL2Signature()
         {
             var jsonData = GetJsonFile("getL2Signature.json");
