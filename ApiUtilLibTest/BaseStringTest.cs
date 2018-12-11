@@ -33,7 +33,7 @@ namespace ApiUtilLibTest
             Assert.AreEqual(expectedBaseString, baseString);
         }
 
-        [Test]
+        //[Test]
         public void BaseString_BugTest()
         {
 

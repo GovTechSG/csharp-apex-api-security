@@ -3,6 +3,9 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to Semantic Versioning.
 
+### V1.4-SNAPSHOT
++ 2018-12-11 - Enhance Travis CI configuration to run unit testing and update test-suites pulling directly from github repo
+
 ### V1.3-SNAPSHOT
 + 2018-09-28 - Added functionality to handle json test cases.
 

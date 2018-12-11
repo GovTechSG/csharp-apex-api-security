@@ -1,2 +1,8 @@
 language : csharp
 solution : ApiSecuritySolution.sln
+install:
+  - nuget restore ApiSecuritySolution.sln
+  - nuget install NUnit.Runners -Version 2.6.4 -OutputDirectory testrunner
+script:
+  - xbuild /p:Configuration=Release ApiSecuritySolution.sln
+  - mono ./testrunner/NUnit.Runners.2.6.4/tools/nunit-console.exe ./ApiUtilLibTest/bin/Release/ApexUtilLibTest.dll
