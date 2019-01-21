@@ -1,7 +1,16 @@
 # Autosave files
 *~
-# vs project
+# Project related
 .vs/
+.idea/
+
+# Output files
+ApiUtilLib/bin
+ApiUtilLib/obj
+
+# Output Test files
+ApiUtilLibTest/bin
+ApiUtilLibTest/obj
 
 # build
 [Oo]bj/

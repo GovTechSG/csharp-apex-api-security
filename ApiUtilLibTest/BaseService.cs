@@ -86,7 +86,6 @@ namespace ApexUtilLibTest
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Exception: " + ex);
                 throw ex;
             }
         }
@@ -100,11 +99,9 @@ namespace ApexUtilLibTest
                 apiList = new ApiList();
                 SetApiList(paramFile.apiParam.formData);
                 SetApiList(paramFile.apiParam.queryString);
-                timeStamp = paramFile.apiParam.timestamp;
-                if (paramFile.apiParam.timestamp.IsNullOrEmpty())
-                    timeStamp = Convert.ToInt32(DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(), 10).ToString();
+                timeStamp = paramFile.apiParam.timestamp ?? "%s";
                 version = paramFile.apiParam.version ?? "1.0";
-                nonce = paramFile.apiParam.nonce ?? ApiUtilLib.ApiAuthorization.NewNonce();
+                nonce = paramFile.apiParam.nonce ?? "%s";
                 authPrefix = paramFile.apiParam.authPrefix;
                 appId = paramFile.apiParam.appID;
                 testId = paramFile.id;
@@ -134,32 +131,49 @@ namespace ApexUtilLibTest
                         var key = item.Key ?? "";
                         var value = item.Value ?? "";
 
-                        if (value.ToString().StartsWith("{", StringComparison.InvariantCulture) && value.ToString().EndsWith("}", StringComparison.InvariantCulture))
-                            value = "";
-
-                        string[] _subArry = { "" };
-                        string val = null;
-                        if (!value.ToString().IsNullOrEmpty())
+                        String value_s = value.ToString().Trim();
+                       
+                        if (!key.ToString().IsNullOrEmpty())
                         {
-                            val = value.ToString().Trim().RemoveString(new string[] { "[", "]", "\\", "\\ ", " \\", "\"", "\\  ", "\n", " " }).Unescape();
-                            _subArry = val.Split(',');
-                        }
+                            string[] _queryParams = { "" };
+                            string val = null;
 
-                        foreach (var subArry in _subArry)
-                        {
-                            var _val = subArry;
-                            if (_val == "True")
-                                _val = "true";
-                            if (_val == "False")
-                                _val = "false";
+                            if (!value_s.IsNullOrEmpty() && !(value_s.StartsWith("{", StringComparison.InvariantCulture) && value_s.EndsWith("}", StringComparison.InvariantCulture)))
+                            {
+                            
+                                val = value_s.RemoveString(new string[] { "\\", "\\ ", " \\", "\"", "\\  ", "\n" }).Unescape();
 
-                            if (!key.ToString().IsNullOrEmpty())
-                                apiList.Add(key.ToString(), _val);
+                                if (val == "True")
+                                    val = "true";
+                                if (val == "False")
+                                    val = "false";
+                                if (val.StartsWith("[", StringComparison.InvariantCulture) && val.EndsWith("]", StringComparison.InvariantCulture))
+                                {
+
+                                    string[] _paramValues = { "" };
+                                    val = val.RemoveString(new string[] { "[", "]", " " });
+                                    _paramValues = val.Split(',');
+                                    foreach (var paramvalue in _paramValues)
+                                    {
+                                        var _paramvalue = paramvalue;
+                                        apiList.Add(key.ToString(), _paramvalue.Unescape());
+                                    }
+
+                                }
+                                else
+                                {
+                                    apiList.Add(key.ToString(), val);
+                                }
+                            }
+                            else
+                            {
+                                apiList.Add(key.ToString(), val);
+                            }
+
                         }
                     }
                 }
-            }
-            catch (Exception ex)
+            }catch (Exception ex)
             {
                 throw ex;
             }

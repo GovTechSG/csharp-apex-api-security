@@ -134,6 +134,19 @@ namespace ApiUtilLib
         public static string GetL2SignatureFromPEM(string filename, string message, string passPhrase)
         {
             Logger.LogEnterExit(LoggerBase.Args(filename, "***password***"));
+            if (String.IsNullOrEmpty(message))
+            {
+                Logger.LogError("{0} must not be null or empty.", nameof(message));
+
+                throw new ArgumentNullException(nameof(message));
+            }
+
+            if (String.IsNullOrEmpty(filename))
+            {
+                Logger.LogError("{0} must not be null or empty.", nameof(filename));
+
+                throw new ArgumentNullException(nameof(filename));
+            }
             string result = null;
             try
             {
@@ -394,52 +407,66 @@ namespace ApiUtilLib
             , string timestamp = null
             , string version = "1.0")
         {
-            Logger.LogEnter(LoggerBase.Args(realm, authPrefix, httpMethod, urlPath, appId, secret, formList == null ? null : formList.ToFormData(), privateKey, nonce, timestamp, version));
-
-            Logger.LogDebug("URL:: {0}", urlPath);
-
-            authPrefix = authPrefix.ToLower();
-
-            // Generate the nonce value
-            nonce = nonce ?? ApiAuthorization.NewNonce().ToString();
-            timestamp = timestamp ?? ApiAuthorization.NewTimestamp().ToString();
-
-            SignatureMethod signatureMethod = SignatureMethod.HMACSHA256;
-            if (secret == null)
+            String nullValueErrMsg = "One or more required parameters are missing!";
+            try
             {
-                signatureMethod = SignatureMethod.SHA256withRSA;
+                Logger.LogEnter(LoggerBase.Args(realm, authPrefix, httpMethod, urlPath, appId, secret, formList == null ? null : formList.ToFormData(), privateKey, nonce, timestamp, version));
+
+                Logger.LogDebug("URL:: {0}", urlPath);
+                if (String.IsNullOrEmpty(authPrefix))
+                {
+                    Logger.LogError(nullValueErrMsg);
+                    throw new ArgumentNullException(nameof(authPrefix));
+                }
+
+
+                authPrefix = authPrefix.ToLower();
+
+                // Generate the nonce value
+                nonce = nonce ?? ApiAuthorization.NewNonce().ToString();
+                timestamp = timestamp ?? ApiAuthorization.NewTimestamp().ToString();
+
+                SignatureMethod signatureMethod = SignatureMethod.HMACSHA256;
+                if (secret == null)
+                {
+                    signatureMethod = SignatureMethod.SHA256withRSA;
+                }
+
+                String baseString = BaseString(authPrefix, signatureMethod
+                    , appId, urlPath, httpMethod
+                    , formList, nonce, timestamp, version);
+
+                String base64Token = "";
+                if (secret != null)
+                {
+                    base64Token = baseString.L1Signature(secret);
+                }
+                else
+                {
+                    base64Token = baseString.L2Signature(privateKey);
+                }
+
+                var tokenList = new ApiList();
+
+                tokenList.Add("realm", realm);
+                tokenList.Add(authPrefix + "_app_id", appId);
+                tokenList.Add(authPrefix + "_nonce", nonce);
+                tokenList.Add(authPrefix + "_signature_method", signatureMethod.ToString());
+                tokenList.Add(authPrefix + "_timestamp", timestamp);
+                tokenList.Add(authPrefix + "_version", version);
+                tokenList.Add(authPrefix + "_signature", base64Token);
+
+                string authorizationToken = string.Format("{0} {1}", authPrefix.Substring(0, 1).ToUpperInvariant() + authPrefix.Substring(1), tokenList.ToString(", ", false, true));
+
+                Logger.LogDebug("Token :: {0}", authorizationToken);
+
+                Logger.LogExit(LoggerBase.Args(authorizationToken));
+                return authorizationToken;
             }
-
-            String baseString = BaseString(authPrefix, signatureMethod
-                , appId, urlPath, httpMethod
-                , formList, nonce, timestamp, version);
-
-            String base64Token = "";
-            if (secret != null)
+            catch (Exception ex)
             {
-                base64Token = baseString.L1Signature(secret);
+                throw ex;
             }
-            else
-            {
-                base64Token = baseString.L2Signature(privateKey);
-            }
-
-            var tokenList = new ApiList();
-
-            tokenList.Add("realm", realm);
-            tokenList.Add(authPrefix + "_app_id", appId);
-            tokenList.Add(authPrefix + "_nonce", nonce);
-            tokenList.Add(authPrefix + "_signature_method", signatureMethod.ToString());
-            tokenList.Add(authPrefix + "_timestamp", timestamp);
-			tokenList.Add(authPrefix + "_version", version);
-			tokenList.Add(authPrefix + "_signature", base64Token);
-
-            string authorizationToken = string.Format("{0} {1}", authPrefix.Substring(0, 1).ToUpperInvariant() + authPrefix.Substring(1), tokenList.ToString(", ", false, true));
-
-            Logger.LogDebug("Token :: {0}", authorizationToken);
-
-            Logger.LogExit(LoggerBase.Args(authorizationToken));
-            return authorizationToken;
         }
 
         public static int HttpRequest(Uri url, string token = null, ApiList postData = null, HttpMethod httpMethod = HttpMethod.GET, bool ignoreServerCert = false)
@@ -567,7 +594,7 @@ namespace ApiUtilLib
             }
             catch (Exception ex)
             {
-                Console.WriteLine("{0}", ex);
+                throw ex;
             }
         }
 

@@ -37,7 +37,7 @@ namespace ApexUtilLibTest
         {
             try
             {
-                var result = value.Where(c => c.Key == "charp").FirstOrDefault().Value;
+                var result = value.Where(c => c.Key == "c#").FirstOrDefault().Value;
                 if (result==null)
                     result = value.Where(c => c.Key == "default").FirstOrDefault().Value;
 

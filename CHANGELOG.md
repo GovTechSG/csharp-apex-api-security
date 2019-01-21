@@ -3,6 +3,9 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to Semantic Versioning.
 
+### V1.5-SNAPSHOT
++ 2019-01-22 - Update and Fix Issue #6 - Failed unit test-cases.
+
 ### V1.4-SNAPSHOT
 + 2018-12-11 - Enhance Travis CI configuration to run unit testing and update test-suites pulling directly from github repo
 

@@ -33,7 +33,7 @@ namespace ApiUtilLibTest
             Assert.AreEqual(expectedBaseString, baseString);
         }
 
-        //[Test]
+        [Test]
         public void BaseString_BugTest()
         {
 
@@ -43,7 +43,7 @@ namespace ApiUtilLibTest
                 formData.Add("MessageBody", "[{}]");
 
             var url = "https://test.example.com:443/api/v1/rest/level1/in-in/?ap=裕廊坊%20心邻坊";
-            var expectedBaseString = "GET&https://test.example.com/api/v1/rest/level1/in-in/&ap=裕廊坊 心邻坊&auth_prefix_app_id=app-id-lpX54CVNltS0ye03v2mQc0b&auth_prefix_nonce=1355584618267440511&auth_prefix_signature_method=HMACSHA256&auth_prefix_timestamp=1502175057654&auth_prefix_version=1.0";
+            var expectedBaseString = "GET&https://test.example.com/api/v1/rest/level1/in-in/&Action=SendMessage&MessageBody=[{}]&ap=裕廊坊 心邻坊&auth_prefix_app_id=app-id-lpX54CVNltS0ye03v2mQc0b&auth_prefix_nonce=1355584618267440511&auth_prefix_signature_method=HMACSHA256&auth_prefix_timestamp=1502175057654&auth_prefix_version=1.0";
 
             var baseString = ApiAuthorization.BaseString(
                 "auth_prefix",
@@ -57,10 +57,6 @@ namespace ApiUtilLibTest
                 "1.0"
             );
 
-
-            //Console.WriteLine("\n>>>BaseString :: '{0}'<<<", baseString);
-
-            //  Console.WriteLine("\n---Lab 3.2---");
             Assert.AreEqual(expectedBaseString, baseString);
         }
 
