@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Serialization;
 using System.Security.Cryptography;
+using System.Text.RegularExpressions;
 
 namespace ApexUtilLibTest
 {
@@ -27,10 +28,9 @@ namespace ApexUtilLibTest
                     if (skipTest == null || !skipTest.Contains("c#"))
                     {
 
-                        var baseString = ApiAuthorization.BaseString(authPrefix, signatureMethod, appId, signatureURL, httpMethod, apiList, nonce, timeStamp, version);
-
                         try
                         {
+                            var baseString = ApiAuthorization.BaseString(authPrefix, signatureMethod, appId, signatureURL, httpMethod, apiList, nonce, timeStamp, version);
                             Assert.AreEqual(expectedResult, baseString);
                             actualPass++;
                         }
@@ -144,7 +144,7 @@ namespace ApexUtilLibTest
             Assert.AreEqual(expectedPass, actualPass);
         }
 
-        //[Test()]
+        [Test()]
         public void TestTokenSignature()
         {
             var jsonData = GetJsonFile("getSignatureToken.json");
@@ -160,19 +160,27 @@ namespace ApexUtilLibTest
                     {
                         try
                         {
-                            string certName = test.apiParam.privateCertFileName;
+                            string certName = test.apiParam.privateCertFileNameP12;
                             string privateCertPath = testCertPath + certName;
-
                             RSACryptoServiceProvider privateKey = null;
                             if (!certName.IsNullOrEmpty())
-                                privateKey = ApiAuthorization.PrivateKeyFromP12(privateCertPath, passphrase);
+                                privateKey = ApiAuthorization.PrivateKeyFromP12(GetLocalPath(privateCertPath), passphrase);
                             var result = ApiAuthorization.Token(realm, authPrefix, httpMethod, signatureURL, appId, secret, apiList, privateKey, nonce, timeStamp, version);
+                            if(timeStamp.Equals("%s") || nonce.Equals("%s"))
+                            {
+                                Match m = Regex.Match(result, "apex_(l[12])_([ei]g)_signature=(\\S+)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                                String signature_value = "";
+                                if (m.Success)
+                                    signature_value = m.Groups[3].Value;
 
+                                expectedResult = expectedResult.Replace("signature=\"%s\"", "signature=" + signature_value);
+                            }
                             Assert.AreEqual(expectedResult, result);
                             actualPass++;
                         }
                         catch (Exception ex)
                         {
+                            Assert.AreEqual(expectedResult, ex.Message);
                             if (errorTest)
                                 actualPass++;
                         }
@@ -185,8 +193,9 @@ namespace ApexUtilLibTest
             }
             catch (Exception ex)
             {
-                throw;
+                throw ex;
             }
+
             Assert.AreEqual(expectedPass, actualPass);
         }
 
@@ -212,8 +221,9 @@ namespace ApexUtilLibTest
                             Assert.AreEqual(expectedResult, result);
                             actualPass++;
                         }
-                        catch (Exception)
+                        catch (Exception ex)
                         {
+                            Assert.AreEqual(expectedResult, ex.Message);
                             if (errorTest)
                                 actualPass++;
                         }
@@ -233,7 +243,7 @@ namespace ApexUtilLibTest
 
         }
 
-        //[Test()]
+        [Test()]
         public void GetL2Signature()
         {
             var jsonData = GetJsonFile("getL2Signature.json");
@@ -254,15 +264,16 @@ namespace ApexUtilLibTest
                             string certName = test.apiParam.privateCertFileName;
                             string privateCertPath = testCertPath + certName;
 
-                            string privateKey = null;
+                            string result = null;
                             if (!certName.IsNullOrEmpty())
-                              privateKey = ApiAuthorization.GetL2SignatureFromPEM(privateCertPath,message, passphrase);
+                              result = ApiAuthorization.GetL2SignatureFromPEM(privateCertPath,message, passphrase);
 
-                            Assert.AreEqual(expectedResult, privateKey);
+                            Assert.AreEqual(expectedResult, result);
                             actualPass++;
                         }
                         catch (Exception ex)
                         {
+                            Assert.AreEqual(expectedResult, ex.Message);
                             if (errorTest)
                                 actualPass++;
                         }

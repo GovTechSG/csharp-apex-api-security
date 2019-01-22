@@ -45,6 +45,8 @@ namespace ApexUtilLibTest
 
         public string privateCertFileName { get; set; }
 
+        public string privateCertFileNameP12 { get; set; }
+
         public string passphrase { get; set; }
 
         public string signatureMethod { get; set; }
