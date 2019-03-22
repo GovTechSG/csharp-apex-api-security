@@ -3,6 +3,9 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to Semantic Versioning.
 
+### V1.6-SNAPSHOT
++ 2019-03-22 - Update ApiAuthorization class to support non-standard http port
+
 ### V1.5-SNAPSHOT
 + 2019-01-22 - Update and Fix Issue #6 - Failed unit test-cases.
 
