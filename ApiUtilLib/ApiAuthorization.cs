@@ -317,7 +317,17 @@ namespace ApiUtilLib
                 }
 
                 // make sure that the port no and querystring are remove from url
-                var url = string.Format("{0}://{1}{2}", siteUri.Scheme, siteUri.Host, siteUri.AbsolutePath);
+                string url;
+
+                if(siteUri.Port==-1 || siteUri.Port==80 || siteUri.Port == 443)
+                {
+                    url = string.Format("{0}://{1}{2}", siteUri.Scheme, siteUri.Host, siteUri.AbsolutePath);
+                }
+                else
+                {
+                    url = string.Format("{0}://{1}:{2}{3}", siteUri.Scheme, siteUri.Host, siteUri.Port, siteUri.AbsolutePath);
+                }
+
                 Logger.LogInformation("url:: {0}", url);
 
                 // helper calss that handle parameters and form fields
