@@ -12,7 +12,13 @@ namespace ApexUtilLibTest
 {
     public class BaseService
     {
-        internal string apexTestSuitePath = "https://github.com/GovTechSG/test-suites-apex-api-security/archive/master.zip";
+        // APEX 1
+        //internal string apexTestSuitePath = "https://github.com/GovTechSG/test-suites-apex-api-security/archive/master.zip";
+
+        // for APEX2
+        //internal string apexTestSuitePath = "https://github.com/GovTechSG/test-suites-apex-api-security/zipball/master/";
+        internal string apexTestSuitePath = "https://github.com/GovTechSG/test-suites-apex-api-security/zipball/development/";
+
         internal string testDataPath = GetLocalPath("temp/test-suites-apex-api-security-master/testData/");
         internal string testCertPath = GetLocalPath("temp/test-suites-apex-api-security-master/");
 
@@ -83,6 +89,16 @@ namespace ApexUtilLibTest
                     Directory.Delete(GetLocalPath("temp/"), true);
                 }
                 ZipFile.ExtractToDirectory(downloadPath, GetLocalPath("temp/"));
+
+                // determine the folder for the json files
+                string path = GetLocalPath("temp/");
+                DirectoryInfo dictiontory = new DirectoryInfo(path);
+                DirectoryInfo[] dir = dictiontory.GetDirectories();// this get all subfolder //name in folder NetOffice.
+                string dirName = dir[0].Name; //var dirName get name from array Dir;
+
+                // set the path to test data files
+                testDataPath = GetLocalPath(string.Format("temp/{0}/testData/", dirName));
+                testCertPath = GetLocalPath(string.Format("temp/{0}/", dirName));
             }
             catch (Exception ex)
             {
@@ -96,16 +112,33 @@ namespace ApexUtilLibTest
             {
                 signatureMethod = paramFile.apiParam.signatureMethod.ParseSignatureMethod(paramFile.apiParam.secret);
                 httpMethod = paramFile.apiParam.httpMethod.ToEnum<ApiUtilLib.HttpMethod>();
-                apiList = new ApiList();
-                SetApiList(paramFile.apiParam.formData);
-                SetApiList(paramFile.apiParam.queryString);
+
+                // queryString and formData must be saperated
+                //apiList = new ApiList();
+                apiList = SetApiList(paramFile.apiParam.formData);
+                var queryData = SetApiList(paramFile.apiParam.queryString);
+
                 timeStamp = paramFile.apiParam.timestamp ?? "%s";
                 version = paramFile.apiParam.version ?? "1.0";
                 nonce = paramFile.apiParam.nonce ?? "%s";
                 authPrefix = paramFile.apiParam.authPrefix;
                 appId = paramFile.apiParam.appID;
                 testId = paramFile.id;
-                signatureURL = paramFile.apiParam.signatureURL.IsNullOrEmpty() == true ? null : new System.Uri(paramFile.apiParam.signatureURL);
+
+                // combine queryString with URL
+                string queryString = "";
+                if (!paramFile.apiParam.signatureURL.IsNullOrEmpty())
+                {
+                    queryString = queryData.ToQueryString();
+                    if (!queryString.IsNullOrEmpty())
+                    {
+                        string joinChar = "?";
+                        if (paramFile.apiParam.signatureURL.IndexOf('?') > -1) joinChar = "&";
+                        queryString = joinChar + queryString;
+                    }
+                }
+                signatureURL = paramFile.apiParam.signatureURL.IsNullOrEmpty() == true ? null : new System.Uri(string.Format("{0}{1}", paramFile.apiParam.signatureURL, queryString));
+                
                 expectedResult = CommonExtensions.GetCharp(paramFile.expectedResult);
                 errorTest = paramFile.errorTest;
                 skipTest = paramFile.skipTest;
@@ -120,10 +153,13 @@ namespace ApexUtilLibTest
             }
         }
 
-        internal void SetApiList(Dictionary<object, object> data = null)
+        // change return type from void to ApiList
+        internal ApiList SetApiList(Dictionary<object, object> data = null)
         {
             try
             {
+                var dataList = new ApiList();
+
                 if (data != null)
                 {
                     foreach (var item in data)
@@ -156,24 +192,27 @@ namespace ApexUtilLibTest
                                     foreach (var paramvalue in _paramValues)
                                     {
                                         var _paramvalue = paramvalue;
-                                        apiList.Add(key.ToString(), _paramvalue.Unescape());
+                                        dataList.Add(key.ToString(), _paramvalue.Unescape());
                                     }
 
                                 }
                                 else
                                 {
-                                    apiList.Add(key.ToString(), val);
+                                    dataList.Add(key.ToString(), val);
                                 }
                             }
                             else
                             {
-                                apiList.Add(key.ToString(), val);
+                                dataList.Add(key.ToString(), val);
                             }
 
                         }
                     }
                 }
-            }catch (Exception ex)
+
+                return dataList;
+            }
+            catch (Exception ex)
             {
                 throw ex;
             }

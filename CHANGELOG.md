@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to Semantic Versioning.
 
+### V2.0-SNAPSHOT
++ 2021-07-16 - Fix bugs related to form post with array.
+             - Add APEX2 Supports
+
 ### V1.6-SNAPSHOT
 + 2019-03-22 - Update ApiAuthorization class to support non-standard http port
 

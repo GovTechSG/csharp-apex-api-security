@@ -49,6 +49,8 @@
     <Compile Include="HttpMethod.cs" />
     <Compile Include="SignatureMethod.cs" />
     <Compile Include="CommonExtensions.cs" />
+    <Compile Include="FormList.cs" />
+    <Compile Include="PrivateKeyFileType.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -31,7 +31,7 @@ namespace ApexUtilLibTest
                         try
                         {
                             var baseString = ApiAuthorization.BaseString(authPrefix, signatureMethod, appId, signatureURL, httpMethod, apiList, nonce, timeStamp, version);
-                            Assert.AreEqual(expectedResult, baseString);
+                            Assert.AreEqual(expectedResult, baseString, "{0} - {1}", test.id, test.description);
                             actualPass++;
                         }
                         catch (Exception ex)
@@ -50,7 +50,7 @@ namespace ApexUtilLibTest
                 throw ex;
             }
 
-            Assert.AreEqual(expectedPass, actualPass);
+            Assert.AreEqual(expectedPass, actualPass, "Total Passed Test Cases");
 
         }
 
@@ -74,7 +74,7 @@ namespace ApexUtilLibTest
                         var result = signature.VerifyL1Signature(secret,message);
                         try
                         {
-                            Assert.AreEqual(expectedResult.ToBool(),result);
+                            Assert.AreEqual(expectedResult.ToBool(),result, "{0} - {1}", test.id, test.description);
                             actualPass++;
                         }
                         catch (Exception)
@@ -94,7 +94,7 @@ namespace ApexUtilLibTest
                 throw;
             }
 
-            Assert.AreEqual(expectedPass, actualPass);
+            Assert.AreEqual(expectedPass, actualPass, "Total Passed Test Cases");
         }
 
         [Test()]
@@ -123,7 +123,7 @@ namespace ApexUtilLibTest
 
                         try
                         {
-                            Assert.IsTrue(result);
+                            Assert.IsTrue(result, "{0} - {1}", test.id, test.description);
                             actualPass++;
                         }
                         catch (Exception)
@@ -141,7 +141,7 @@ namespace ApexUtilLibTest
                 throw ex;
             }
 
-            Assert.AreEqual(expectedPass, actualPass);
+            Assert.AreEqual(expectedPass, actualPass, "Total Passed Test Cases");
         }
 
         [Test()]
@@ -175,12 +175,12 @@ namespace ApexUtilLibTest
 
                                 expectedResult = expectedResult.Replace("signature=\"%s\"", "signature=" + signature_value);
                             }
-                            Assert.AreEqual(expectedResult, result);
+                            Assert.AreEqual(expectedResult, result, "{0} - {1}", test.id, test.description);
                             actualPass++;
                         }
                         catch (Exception ex)
                         {
-                            Assert.AreEqual(expectedResult, ex.Message);
+                            Assert.AreEqual(expectedResult, ex.Message, "{0} - {1}", test.id, test.description);
                             if (errorTest)
                                 actualPass++;
                         }
@@ -196,7 +196,7 @@ namespace ApexUtilLibTest
                 throw ex;
             }
 
-            Assert.AreEqual(expectedPass, actualPass);
+            Assert.AreEqual(expectedPass, actualPass, "Total Passed Test Cases");
         }
 
         [Test()]
@@ -218,12 +218,12 @@ namespace ApexUtilLibTest
                         try
                         {
                             var result = message.L1Signature(secret);
-                            Assert.AreEqual(expectedResult, result);
+                            Assert.AreEqual(expectedResult, result, "id:{0} - {1}", test.id, test.description);
                             actualPass++;
                         }
                         catch (Exception ex)
                         {
-                            Assert.AreEqual(expectedResult, ex.Message);
+                            Assert.AreEqual(expectedResult, ex.Message, "{0} - {1}", test.id, test.description);
                             if (errorTest)
                                 actualPass++;
                         }
@@ -239,7 +239,7 @@ namespace ApexUtilLibTest
                 throw ex;
             }
 
-            Assert.AreEqual(expectedPass, actualPass);
+            Assert.AreEqual(expectedPass, actualPass, "Total Passed Test Cases");
 
         }
 
@@ -268,12 +268,12 @@ namespace ApexUtilLibTest
                             if (!certName.IsNullOrEmpty())
                               result = ApiAuthorization.GetL2SignatureFromPEM(privateCertPath,message, passphrase);
 
-                            Assert.AreEqual(expectedResult, result);
+                            Assert.AreEqual(expectedResult, result, "{0} - {1}", test.id, test.description);
                             actualPass++;
                         }
                         catch (Exception ex)
                         {
-                            Assert.AreEqual(expectedResult, ex.Message);
+                            Assert.AreEqual(expectedResult, ex.Message, "{0} - {1}", test.id, test.description);
                             if (errorTest)
                                 actualPass++;
                         }
@@ -289,7 +289,7 @@ namespace ApexUtilLibTest
                 throw ex;
             }
 
-            Assert.AreEqual(expectedPass, actualPass);
+            Assert.AreEqual(expectedPass, actualPass, "Total Passed Test Cases");
 
         }
     }
