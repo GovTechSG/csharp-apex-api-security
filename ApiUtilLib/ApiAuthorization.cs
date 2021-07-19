@@ -236,54 +236,6 @@ namespace ApiUtilLib
             return privateKey;
         }
 
-        // public static RSACryptoServiceProvider PrivateKeyFromPemPkcs8(string pemFileName, string passPhrase = null)
-        // {
-        //     RsaPrivateCrtKeyParameters keyPair;
-
-        //     using (var reader = File.OpenText(pemFileName)) // file containing RSA PKCS8 private key
-        //     {
-        //         //PemReader pr = new PemReader(reader);
-        //         //keyPair = (RsaPrivateCrtKeyParameters)pr.ReadObject();
-
-        //         if (passPhrase != null)
-        //         {
-        //             keyPair = (RsaPrivateCrtKeyParameters)new PemReader(reader, new PasswordFinder(passPhrase)).ReadObject();
-        //         }
-        //         else
-        //         {
-        //             keyPair = (RsaPrivateCrtKeyParameters)new PemReader(reader).ReadObject();
-        //         }
-        //     }
-        //     RSAParameters rsaParams = DotNetUtilities.ToRSAParameters((RsaPrivateCrtKeyParameters)keyPair);
-
-        //     RSACryptoServiceProvider csp = new RSACryptoServiceProvider();
-        //     csp.ImportParameters(rsaParams);
-        //     return csp;
-        // }
-
-        // public static RSACryptoServiceProvider PrivateKeyFromPem(string pemFileName, string passPhrase = null)
-        // {
-        //     AsymmetricCipherKeyPair keyPair;
-
-        //     using (var reader = File.OpenText(pemFileName)) // file containing RSA PKCS1 private key
-        //     {
-        //         if (passPhrase != null)
-        //         {
-        //             keyPair = (AsymmetricCipherKeyPair)new PemReader(reader, new PasswordFinder(passPhrase)).ReadObject();
-        //         }
-        //         else
-        //         {
-        //             keyPair = (AsymmetricCipherKeyPair)new PemReader(reader).ReadObject();
-        //         }
-        //     }
-        //     RSAParameters rsaParams = DotNetUtilities.ToRSAParameters((RsaPrivateCrtKeyParameters)keyPair.Private);
-
-        //     RSACryptoServiceProvider csp = new RSACryptoServiceProvider();
-        //     csp.ImportParameters(rsaParams);
-        //     return csp;
-        // }
-
-
         public static X509Certificate2 LoadCertificateFile(string filename, string passPhrase)
         {
             X509Certificate2 x509 = null;
@@ -410,87 +362,8 @@ namespace ApiUtilLib
                 formData = FormList.Convert(formList);
 
             return BaseString(authPrefix, signatureMethod, appId, siteUri, formData, httpMethod, nonce, timestamp, version);
-
-            //try
-            //{
-            //    Logger.LogEnter(LoggerBase.Args(authPrefix, signatureMethod, appId, siteUri, httpMethod, formList, nonce, timestamp));
-
-            //    authPrefix = authPrefix.ToLower();
-
-            //    // make sure that the url are valid
-            //    if (siteUri.Scheme != "http" && siteUri.Scheme != "https")
-            //    {
-            //        throw new System.NotSupportedException("Support http and https protocol only.");
-            //    }
-
-            //    // make sure that the port no and querystring are remove from url
-            //    string url;
-
-            //    if(siteUri.Port==-1 || siteUri.Port==80 || siteUri.Port == 443)
-            //    {
-            //        url = string.Format("{0}://{1}{2}", siteUri.Scheme, siteUri.Host, siteUri.AbsolutePath);
-            //    }
-            //    else
-            //    {
-            //        url = string.Format("{0}://{1}:{2}{3}", siteUri.Scheme, siteUri.Host, siteUri.Port, siteUri.AbsolutePath);
-            //    }
-
-            //    Logger.LogInformation("url:: {0}", url);
-
-            //    // helper calss that handle parameters and form fields
-            //    ApiList paramList = new ApiList();  
-
-            //    // process QueryString from url by transfering it to paramList
-            //    if (siteUri.Query.Length > 1)
-            //    {
-            //        var queryString = siteUri.Query.Substring(1); // remove the ? from first character
-            //        Logger.LogInformation("queryString:: {0}", queryString);
-
-            //        var paramArr = queryString.Split('&');
-            //        foreach (string item in paramArr)
-            //        {
-            //            string key = null;
-            //            string val = null;
-            //            var itemArr = item.Split('=');
-            //            key = itemArr[0];
-            //            if(itemArr.Length>1)
-            //                val = itemArr[1];
-            //            paramList.Add(key, System.Net.WebUtility.UrlDecode(val));
-            //        }
-
-            //        Logger.LogInformation("paramList:: {0}", paramList);
-            //    }
-
-            //    // add the form fields to paramList
-            //    if (formList != null && formList.Count > 0)
-            //    {
-            //        paramList.AddRange(formList);
-            //    }
-
-            //    paramList.Add(authPrefix + "_timestamp", timestamp);
-            //    paramList.Add(authPrefix + "_nonce", nonce);
-            //    paramList.Add(authPrefix + "_app_id", appId);
-            //    paramList.Add(authPrefix + "_signature_method", signatureMethod.ToString());
-            //    paramList.Add(authPrefix + "_version", version);
-
-            //    string baseString = httpMethod.ToString() + "&" + url + "&" + paramList.ToString();
-
-            //    Logger.LogDebug("BaseString:: {0}", baseString);
-
-            //    Logger.LogExit(LoggerBase.Args(baseString));
-            //    return baseString;
-            //}
-            //    catch (Exception ex)
-            //{
-            //    throw ex;
-            //}
         }
 
-        /// <summary>
-        /// 
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public static string BaseString(
             string authPrefix
             , SignatureMethod signatureMethod
@@ -602,7 +475,8 @@ namespace ApiUtilLib
             return System.Convert.ToBase64String(data);
         }
 
-		public static String Token(
+        [Obsolete("Token is deprecated, please use TokenV2 instead.")]
+        public static String Token(
             string realm
             , string authPrefix
             , HttpMethod httpMethod
@@ -677,6 +551,7 @@ namespace ApiUtilLib
             }
         }
 
+        [Obsolete("HttpRequest with ApiList is deprecated, please use HttpRequest with FormList instead.")]
         public static int HttpRequest(Uri url, string token = null, ApiList postData = null, HttpMethod httpMethod = HttpMethod.GET, bool ignoreServerCert = false)
         {
             Logger.LogEnter(LoggerBase.Args(url, token, postData == null ? "null" : postData.ToFormData(), httpMethod));
@@ -931,6 +806,14 @@ namespace ApiUtilLib
         const string APEX1_DOMAIN = "api.gov.sg";
 
         public static AuthToken TokenV2(AuthParam authParam) {
+            String nullValueErrMsg = "One or more required parameters are missing!";
+
+            if (authParam.url == null)
+            {
+                Logger.LogError(nullValueErrMsg);
+                throw new ArgumentNullException(nameof(authParam.url));
+            }
+
             // split url into hostname and domain
             var gatewayName = authParam.url.Host.Split('.')[0];
             var originalDomain = String.Join(".", authParam.url.Host.Split('.').Skip(1).ToArray());
@@ -1046,58 +929,6 @@ namespace ApiUtilLib
             }
 
             return new AuthToken(authToken, baseStringList);
-        }
-    }
-
-    public class AuthParam 
-    {
-        public Uri url;
-        public HttpMethod httpMethod;
-        public string appName;
-        public string appSecret;
-        public RSACryptoServiceProvider privateKey = null;
-        public FormList formList;
-        public SignatureMethod signatureMethod;
-        public string nonce;
-        public string timestamp;
-        public string version;
-
-        public AuthParam nextHop;
-    }
-
-    public class AuthToken
-    {
-        public string _token;
-        public List<string> _list;
-
-        public AuthToken(string token, List<string> baseStringList)
-        {
-            _token = token;
-            _list = baseStringList;
-        }
-
-        public string Token
-        {
-            get
-            {
-                return _token;
-            }
-        }
-
-        public List<string> BaseStringList
-        {
-            get
-            {
-                return _list;
-            }
-        }
-
-        public string BaseString
-        {
-            get
-            {
-                return String.Join(", ",_list.ToArray());
-            }
         }
     }
 }

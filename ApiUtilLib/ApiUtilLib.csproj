@@ -51,6 +51,8 @@
     <Compile Include="CommonExtensions.cs" />
     <Compile Include="FormList.cs" />
     <Compile Include="PrivateKeyFileType.cs" />
+    <Compile Include="AuthToken.cs" />
+    <Compile Include="AuthParam.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

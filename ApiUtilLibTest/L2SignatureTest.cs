@@ -19,7 +19,8 @@ namespace ApiUtilLibTest
 		const string baseString = "message";
 		const string password = "passwordp12";
 
-		static readonly RSACryptoServiceProvider privateKey = ApiAuthorization.PrivateKeyFromP12(privateCertName, password);
+		static readonly RSACryptoServiceProvider privateKey = ApiAuthorization.GetPrivateKey(ApexUtilLib.PrivateKeyFileType.P12, privateCertName, password);
+
 		static readonly RSACryptoServiceProvider publicKey = ApiAuthorization.PublicKeyFromCer(publicCertName);
 
 		static string GetLocalPath(string relativeFileName)

@@ -6,6 +6,7 @@ using System.Linq;
 using Newtonsoft.Json.Serialization;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
+using ApexUtilLib;
 
 namespace ApexUtilLibTest
 {
@@ -30,13 +31,13 @@ namespace ApexUtilLibTest
 
                         try
                         {
-                            var baseString = ApiAuthorization.BaseString(authPrefix, signatureMethod, appId, signatureURL, httpMethod, apiList, nonce, timeStamp, version);
+                            var baseString = ApiAuthorization.BaseString(authPrefix, signatureMethod, appId, signatureURL, formData, httpMethod, nonce, timeStamp, version);
                             Assert.AreEqual(expectedResult, baseString, "{0} - {1}", test.id, test.description);
                             actualPass++;
                         }
                         catch (Exception ex)
                         {
-                            ex = ex;
+                            throw ex;
                         }
                     }
                     else
@@ -164,9 +165,22 @@ namespace ApexUtilLibTest
                             string privateCertPath = testCertPath + certName;
                             RSACryptoServiceProvider privateKey = null;
                             if (!certName.IsNullOrEmpty())
-                                privateKey = ApiAuthorization.PrivateKeyFromP12(GetLocalPath(privateCertPath), passphrase);
-                            var result = ApiAuthorization.Token(realm, authPrefix, httpMethod, signatureURL, appId, secret, apiList, privateKey, nonce, timeStamp, version);
-                            if(timeStamp.Equals("%s") || nonce.Equals("%s"))
+                            {
+                                privateKey = ApiAuthorization.GetPrivateKey(ApexUtilLib.PrivateKeyFileType.P12, GetLocalPath(privateCertPath), passphrase);
+                            }
+
+                            var authParam = new AuthParam();
+                            authParam.url = signatureURL;
+                            authParam.httpMethod = httpMethod;
+                            authParam.appName = appId;
+                            authParam.appSecret = secret;
+                            authParam.formList = formData;
+                            authParam.privateKey = privateKey;
+                            authParam.timestamp = timeStamp;
+                            authParam.nonce = nonce;
+                            var result = ApiAuthorization.TokenV2(authParam).Token;
+
+                            if (timeStamp.Equals("%s") || nonce.Equals("%s"))
                             {
                                 Match m = Regex.Match(result, "apex_(l[12])_([ei]g)_signature=(\\S+)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
                                 String signature_value = "";

@@ -5,6 +5,7 @@ using ApiUtilLib;
 using System.IO;
 using System.Reflection;
 using System.Security.Cryptography;
+using ApexUtilLib;
 
 namespace ApiUtilLibTest
 {
@@ -24,7 +25,7 @@ namespace ApiUtilLibTest
 
 		const string passphrase = "passwordp12";
 
-		static RSACryptoServiceProvider privateKey = ApiAuthorization.PrivateKeyFromP12(privateCertNameP12, passphrase);
+		static RSACryptoServiceProvider privateKey = ApiAuthorization.GetPrivateKey(ApexUtilLib.PrivateKeyFileType.P12, privateCertNameP12, passphrase);
 
 		const string realm = "http://example.api.test/token";
 		const string authPrefixL1 = "api_prefix_l1";
@@ -42,18 +43,16 @@ namespace ApiUtilLibTest
         [Test]
 		public void Test_L1_Basic_Test()
 		{
-			var expectedTokenL1 = "Api_prefix_l1 realm=\"http://example.api.test/token\", api_prefix_l1_app_id=\"app-id-lpX54CVNltS0ye03v2mQc0b\", api_prefix_l1_nonce=\"-5816789581922453013\", api_prefix_l1_signature_method=\"HMACSHA256\", api_prefix_l1_timestamp=\"1502199514462\", api_prefix_l1_version=\"1.0\", api_prefix_l1_signature=\"loz2Hp2wqiK8RxWjkI6Y6Y4OzmOS/QVPevT8Z43TRM4=\"";
+			var expectedTokenL1 = "Apex_l1_eg realm=\"https://test.example.com\", apex_l1_eg_app_id=\"app-id-lpX54CVNltS0ye03v2mQc0b\", apex_l1_eg_nonce=\"-5816789581922453013\", apex_l1_eg_signature_method=\"HMACSHA256\", apex_l1_eg_timestamp=\"1502199514462\", apex_l1_eg_version=\"1.0\", apex_l1_eg_signature=\"YA+Ygjc1S/b2xgm8IaCFsEPcO4sEUH1AsUmm1TUHjmk=\"";
 
-			var authorizationToken = ApiAuthorization.Token(
-                realm
-				, authPrefixL1
-				, httpMethod
-				, url
-				, appId
-				, secret
-				, timestamp: timestamp
-				, nonce: nonce
-			);
+			var authParam = new AuthParam();
+			authParam.url = url;
+			authParam.httpMethod = httpMethod;
+			authParam.appName = appId;
+			authParam.appSecret = secret;
+			authParam.timestamp = timestamp;
+			authParam.nonce = nonce;
+			var authorizationToken = ApiAuthorization.TokenV2(authParam).Token;
 
             Assert.AreEqual(expectedTokenL1, authorizationToken);
 		}
@@ -61,20 +60,18 @@ namespace ApiUtilLibTest
 		[Test]
 		public void Test_L2_Basic_Test()
 		{
-			var expectedTokenL2 = "Api_prefix_l2 realm=\"http://example.api.test/token\", api_prefix_l2_app_id=\"app-id-lpX54CVNltS0ye03v2mQc0b\", api_prefix_l2_nonce=\"-5816789581922453013\", api_prefix_l2_signature_method=\"SHA256withRSA\", api_prefix_l2_timestamp=\"1502199514462\", api_prefix_l2_version=\"1.0\", api_prefix_l2_signature=\"EZuFn/n3dxJ4OA9nkdM3yvw76azvyx/HKptQoWzTNWHxMB/2FyurbbpsSb16yNU4bOzRgHlFTZZzbJeZd211M7tLfRC/YQ1Mc2aIxufG7c7H3/3IZ0WdfHIJlF+XwHOR4U5sjRhbCBwSOZzHp6V2a/nmm+CYTjW2LBHxG7aB1wNI6V1PGDp+ePVr8uoyd4MD9nJj5IqLlljtpWCBUJsa7ZZdXgwbStxAdVA3j2lk3FAH9BzaKTQV0msB50Ou/itAw95pqH4RGrWjcuUETUN82JG154SrT/+hqXlmgsgl+6vui7kyCIGnQjhH+3ZSIp/91nJKW8/1hDcNKWQzuoIS9G23rJzPIuStc1f8y/YvXjUSxNTItb4DcSGwqOs1W8+ejLofW/HDBENhhL66ZZaO0EbJmMWJDp+r7w+RtrlRa2QLsuocuAYAsc8FbhW8SBowIHt/BpuIE21SCfXhbbqYmi0WY+YjJxJ79bNsf7OzH57wQln2Ri6jUtRsCez3rP+714aSAJMLKzJPrsUsiefQDuDjl+g7Fs+Ge5eCv3EOu36qmBEAwvS8oNU8eKa0ZnuXTZrvVEyAAgqQXjv7V4tklKImHMhBv3CqWHGtmxCIqFJuJ71ss81kOJ9pc1otyMzKvSZtVyxaOFgE1hTPfsA6Y5pQayhVikeCMfX8u/uFSmM=\"";
+			var expectedTokenL2 = "Apex_l2_eg realm=\"https://test.example.com\", apex_l2_eg_app_id=\"app-id-lpX54CVNltS0ye03v2mQc0b\", apex_l2_eg_nonce=\"-5816789581922453013\", apex_l2_eg_signature_method=\"SHA256withRSA\", apex_l2_eg_timestamp=\"1502199514462\", apex_l2_eg_version=\"1.0\", apex_l2_eg_signature=\"PkKDLI40VMiMUL3GVPLHo4upPGlUJ9BNno/GLhjiN5RpL/NUIM5v6Q10XrT4KAfEymtvjFKzt3R20uhOPEnHVJ7XsZLDZ81RRfYOISsLSzNv0HUX7zm0Y0sow6WQjk7gHPTJAWd/T6Mdv28UnZaM2Vf7tmyFO93tTCT1+ulz0a4akMdcqHORAQPOH84v217f0r6H6UtDHbw+Kn3TNVQheHxF2qcZ1d9U/+WYnvN5N+vgsM3pdEJylF+58QsVZRdZJpway/n+2QzzsEpe1Gpce646Lpvnifz2iFKbHDa6pe7cKiZ2un8dXzxXkPkqwbqu3D2YyPMgZwV5vXgEsXxgT4bqGgzSvG56Ml4/B+c5JW6p6xiZL2MpM0s1Tm2ayFfbqZ3DivB9X1nUQT3HJ0o9teyq86p8QTCDvGIMVZZPLV7ww+e4ZUnpd+RJqbDb+y4S53fs4e32+ceuwoyqofbehXKlNFeKL1sqgRnLEnsjHIMbfjdUCtHiJLNzvI0i4C53KNuGC9iFOu3u+2VVYWYcDBOFJ1lixqso0dLoJm/Uz+6uwqn4FlI4QB0LqFBOnFLvF0HnbP3s4jjSE2F7VYRrDZ9uZWvvbfCgqnFWoXqzEjbEB4DHZ9DkATc+PjFt7ZsJJ/xNEjzL7kFNzom5+UHSRSLp/e5n1kj6KOX0xVkQPkQ=\"";
 
-			var authorizationToken = ApiAuthorization.Token(
-				realm
-				, authPrefixL2
-				, httpMethod
-				, url
-				, appId
-                , privateKey: privateKey
-				, timestamp: timestamp
-				, nonce: nonce
-			);
+			var authParam = new AuthParam();
+			authParam.url = url;
+			authParam.httpMethod = httpMethod;
+			authParam.appName = appId;
+			authParam.privateKey = privateKey;
+			authParam.timestamp = timestamp;
+			authParam.nonce = nonce;
+			var authorizationToken = ApiAuthorization.TokenV2(authParam).Token;
 
-            Assert.AreEqual(expectedTokenL2, authorizationToken);
+			Assert.AreEqual(expectedTokenL2, authorizationToken);
 		}
 
         [Test]
@@ -83,17 +80,15 @@ namespace ApiUtilLibTest
 
             Assert.Throws<System.Security.Cryptography.CryptographicException>(() =>
             {
-                var myPrivateKey = ApiAuthorization.PrivateKeyFromP12(privateCertNameP12, passphrase + "x");
+				var myPrivateKey = ApiAuthorization.GetPrivateKey(ApexUtilLib.PrivateKeyFileType.P12, privateCertNameP12, passphrase + "x");
 
-                ApiAuthorization.Token(
-                    realm
-                    , authPrefixL2
-                    , httpMethod
-                    , url
-                    , appId
-                    , privateKey: myPrivateKey
-                );
-            });
+				var authParam = new AuthParam();
+				authParam.url = url;
+				authParam.httpMethod = httpMethod;
+				authParam.appName = appId;
+				authParam.privateKey = myPrivateKey;
+				ApiAuthorization.TokenV2(authParam);
+			});
 		}
 
         [Test]
@@ -103,17 +98,15 @@ namespace ApiUtilLibTest
 
             Assert.Throws<System.ArgumentNullException>(() =>
             {
-                var myPrivateKey = ApiAuthorization.PrivateKeyFromP12(fileName, passphrase);
+                var myPrivateKey = ApiAuthorization.GetPrivateKey(ApexUtilLib.PrivateKeyFileType.P12, fileName, passphrase);
 
-				ApiAuthorization.Token(
-                realm
-                , authPrefixL2
-                , httpMethod
-                , url
-                , appId
-                , privateKey: myPrivateKey
-                );
-            });
+				var authParam = new AuthParam();
+				authParam.url = url;
+				authParam.httpMethod = httpMethod;
+				authParam.appName = appId;
+				authParam.privateKey = myPrivateKey;
+				ApiAuthorization.TokenV2(authParam);
+			});
 		}
 
 		[Test]
@@ -123,17 +116,15 @@ namespace ApiUtilLibTest
 
             Assert.Throws<System.IO.FileNotFoundException>(() =>
             {
-				var myPrivateKey = ApiAuthorization.PrivateKeyFromP12(fileName, passphrase);
+				var myPrivateKey = ApiAuthorization.GetPrivateKey(ApexUtilLib.PrivateKeyFileType.P12, fileName, passphrase);
 
-				ApiAuthorization.Token(
-                realm
-                , authPrefixL2
-                , httpMethod
-                , url
-                , appId
-                , privateKey: myPrivateKey
-                );
-            });
+				var authParam = new AuthParam();
+				authParam.url = url;
+				authParam.httpMethod = httpMethod;
+				authParam.appName = appId;
+				authParam.privateKey = myPrivateKey;
+				ApiAuthorization.TokenV2(authParam);
+			});
 		}
 
 

@@ -19,12 +19,13 @@ namespace ApexUtilLibTest
         //internal string apexTestSuitePath = "https://github.com/GovTechSG/test-suites-apex-api-security/zipball/master/";
         internal string apexTestSuitePath = "https://github.com/GovTechSG/test-suites-apex-api-security/zipball/development/";
 
-        internal string testDataPath = GetLocalPath("temp/test-suites-apex-api-security-master/testData/");
-        internal string testCertPath = GetLocalPath("temp/test-suites-apex-api-security-master/");
+        internal string testDataPath = GetLocalPath("temp/GovTechSG-test-suites-apex-api-security-46232ac/testData/");
+        internal string testCertPath = GetLocalPath("temp/GovTechSG-test-suites-apex-api-security-46232ac/");
 
         internal ApiUtilLib.SignatureMethod signatureMethod { get; set; }
         internal ApiUtilLib.HttpMethod httpMethod { get; set; }
         internal ApiList apiList { get; set; }
+        internal FormList formData { get; set; }
         internal string timeStamp { get; set; }
         internal string version { get; set; }
         internal string nonce { get; set; }
@@ -116,6 +117,7 @@ namespace ApexUtilLibTest
                 // queryString and formData must be saperated
                 //apiList = new ApiList();
                 apiList = SetApiList(paramFile.apiParam.formData);
+                formData = FormList.Convert(apiList);
                 var queryData = SetApiList(paramFile.apiParam.queryString);
 
                 timeStamp = paramFile.apiParam.timestamp ?? "%s";

@@ -23,8 +23,8 @@ namespace ApiUtilLibTest
                 SignatureMethod.HMACSHA256,
                 "app-id-lpX54CVNltS0ye03v2mQc0b",
                 new System.Uri(url),
-                HttpMethod.GET,
                 null,
+                HttpMethod.GET,
                 "1355584618267440511",
                 "1502175057654",
                 "1.0"
@@ -37,7 +37,7 @@ namespace ApiUtilLibTest
         public void BaseString_BugTest()
         {
 
-                var formData = new ApiUtilLib.ApiList();
+                var formData = new ApiUtilLib.FormList();
 
                 formData.Add("Action", "SendMessage");
                 formData.Add("MessageBody", "[{}]");
@@ -50,8 +50,8 @@ namespace ApiUtilLibTest
                 SignatureMethod.HMACSHA256,
                 "app-id-lpX54CVNltS0ye03v2mQc0b",
                 new System.Uri(url),
-                HttpMethod.GET,
                 formData,
+                HttpMethod.GET,
                 "1355584618267440511",
                 "1502175057654",
                 "1.0"
@@ -66,7 +66,7 @@ namespace ApiUtilLibTest
             var url = "https://test.example.com:443/api/v1/rest/level1/in-in/?ap=裕廊坊%20心邻坊";
             var expectedBaseString = "POST&https://test.example.com/api/v1/rest/level1/in-in/&ap=裕廊坊 心邻坊&auth_prefix_app_id=app-id-lpX54CVNltS0ye03v2mQc0b&auth_prefix_nonce=6584351262900708156&auth_prefix_signature_method=HMACSHA256&auth_prefix_timestamp=1502184161702&auth_prefix_version=1.0&param1=data1";
 
-            var formList = new ApiList();
+            var formList = new FormList();
             formList.Add("param1", "data1");
 
             var baseString = ApiAuthorization.BaseString(
@@ -74,8 +74,8 @@ namespace ApiUtilLibTest
                 SignatureMethod.HMACSHA256,
                 "app-id-lpX54CVNltS0ye03v2mQc0b",
                 new System.Uri(url),
-                HttpMethod.POST,
                 formList,
+                HttpMethod.POST,
                 "6584351262900708156",
                 "1502184161702",
                 "1.0"
@@ -94,8 +94,8 @@ namespace ApiUtilLibTest
                 SignatureMethod.HMACSHA256,
                 "app-id-lpX54CVNltS0ye03v2mQc0b",
                 new System.Uri(url),
-                HttpMethod.POST,
                 null,
+                HttpMethod.POST,
                 "6584351262900708156",
                 "1502184161702",
                 "1.0"
@@ -112,8 +112,8 @@ namespace ApiUtilLibTest
                 SignatureMethod.HMACSHA256,
                 "app-id-lpX54CVNltS0ye03v2mQc0b",
                 new System.Uri(url),
-                HttpMethod.POST,
                 null,
+                HttpMethod.POST,
                 "6584351262900708156",
                 "1502184161702",
                 "1.0"
