@@ -5,7 +5,6 @@ using ApiUtilLib;
 using System.IO;
 using System.Reflection;
 using System.Security.Cryptography;
-using ApexUtilLib;
 
 namespace ApiUtilLibTest
 {
@@ -25,7 +24,7 @@ namespace ApiUtilLibTest
 
 		const string passphrase = "passwordp12";
 
-		static RSACryptoServiceProvider privateKey = ApiAuthorization.GetPrivateKey(ApexUtilLib.PrivateKeyFileType.P12, privateCertNameP12, passphrase);
+		static RSACryptoServiceProvider privateKey = ApiAuthorization.GetPrivateKey(ApiUtilLib.PrivateKeyFileType.P12, privateCertNameP12, passphrase);
 
 		const string realm = "http://example.api.test/token";
 		const string authPrefixL1 = "api_prefix_l1";
@@ -80,7 +79,7 @@ namespace ApiUtilLibTest
 
             Assert.Throws<System.Security.Cryptography.CryptographicException>(() =>
             {
-				var myPrivateKey = ApiAuthorization.GetPrivateKey(ApexUtilLib.PrivateKeyFileType.P12, privateCertNameP12, passphrase + "x");
+				var myPrivateKey = ApiAuthorization.GetPrivateKey(ApiUtilLib.PrivateKeyFileType.P12, privateCertNameP12, passphrase + "x");
 
 				var authParam = new AuthParam();
 				authParam.url = url;
@@ -98,7 +97,7 @@ namespace ApiUtilLibTest
 
             Assert.Throws<System.ArgumentNullException>(() =>
             {
-                var myPrivateKey = ApiAuthorization.GetPrivateKey(ApexUtilLib.PrivateKeyFileType.P12, fileName, passphrase);
+                var myPrivateKey = ApiAuthorization.GetPrivateKey(ApiUtilLib.PrivateKeyFileType.P12, fileName, passphrase);
 
 				var authParam = new AuthParam();
 				authParam.url = url;
@@ -116,7 +115,7 @@ namespace ApiUtilLibTest
 
             Assert.Throws<System.IO.FileNotFoundException>(() =>
             {
-				var myPrivateKey = ApiAuthorization.GetPrivateKey(ApexUtilLib.PrivateKeyFileType.P12, fileName, passphrase);
+				var myPrivateKey = ApiAuthorization.GetPrivateKey(ApiUtilLib.PrivateKeyFileType.P12, fileName, passphrase);
 
 				var authParam = new AuthParam();
 				authParam.url = url;

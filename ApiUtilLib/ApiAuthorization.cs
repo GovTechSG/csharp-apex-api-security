@@ -4,7 +4,6 @@ using System.Net;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
-using ApexUtilLib;
 using System.Collections.Generic;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json;
@@ -220,7 +219,8 @@ namespace ApiUtilLib
 
                         keyPair_pkcs8 = (RsaPrivateCrtKeyParameters)new PemReader(reader, new PasswordFinder(passPhrase)).ReadObject();
                         rsaParams = DotNetUtilities.ToRSAParameters((RsaPrivateCrtKeyParameters)keyPair_pkcs8);
-                    } else
+                    }
+                    else
                     {
                         AsymmetricCipherKeyPair keyPair_pkcs1;
 
@@ -286,7 +286,7 @@ namespace ApiUtilLib
                 rcsp.ImportParameters(rsaParameters);
                 return rsaKey;
             };
-            IPasswordFinder pwd;
+            //IPasswordFinder pwd;
             PemReader reader;
             reader = new PemReader(new StringReader(pemstr), new PasswordFinder(password));
             object kp = reader.ReadObject();
@@ -299,8 +299,6 @@ namespace ApiUtilLib
             {
                 return MakePublicRCSP(rsaKey, (RsaKeyParameters)kp);
             }
-                
-
         }
 
 
@@ -419,7 +417,7 @@ namespace ApiUtilLib
                         key = itemArr[0];
                         if (itemArr.Length > 1)
                             val = itemArr[1];
-                        paramList.Add(key, System.Net.WebUtility.UrlDecode(val));
+                        paramList.Add(System.Net.WebUtility.UrlDecode(key), System.Net.WebUtility.UrlDecode(val));
                     }
 
                     Logger.LogInformation("paramList:: {0}", paramList);

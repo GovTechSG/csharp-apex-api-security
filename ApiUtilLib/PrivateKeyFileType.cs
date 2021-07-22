@@ -1,5 +1,5 @@
 ﻿using System;
-namespace ApexUtilLib
+namespace ApiUtilLib
 {
     public enum PrivateKeyFileType
     {

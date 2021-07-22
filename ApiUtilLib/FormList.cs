@@ -41,7 +41,7 @@ namespace ApiUtilLib
         }
 
         // baseString
-        public List<KeyValuePair<string, string>> GetFormList()
+        internal List<KeyValuePair<string, string>> GetFormList()
         {
             var list = new List<KeyValuePair<string, string>>();
 
@@ -72,7 +72,11 @@ namespace ApiUtilLib
         }
         public string ToQueryString()
         {
-            return "?" + ToFormData();
+            var queryString = ToFormData();
+
+            if (queryString.Length > 0) queryString = string.Format("?{0}", queryString);
+
+            return queryString;
         }
 
         public static FormList Convert(ApiList apiList)

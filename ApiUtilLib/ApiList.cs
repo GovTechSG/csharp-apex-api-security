@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Collections;
-using ApexUtilLib;
 
 namespace ApiUtilLib
 {
+	[Obsolete("ApiList is deprecated, please use FormList instead.")]
 	public class ApiList : List<KeyValuePair<string, string>>
 	{
 

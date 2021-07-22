@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace ApexUtilLib
+namespace ApiUtilLib
 {
     public class AuthToken
     {
-        public string _token;
-        public List<string> _list;
+        private string _token;
+        private List<string> _list;
 
-        public AuthToken(string token, List<string> baseStringList)
+        internal AuthToken(string token, List<string> baseStringList)
         {
             _token = token;
             _list = baseStringList;

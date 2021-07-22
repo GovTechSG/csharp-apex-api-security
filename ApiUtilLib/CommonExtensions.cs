@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 
-namespace ApexUtilLib
+namespace ApiUtilLib
 {
     public static class CommonExtensions
     {

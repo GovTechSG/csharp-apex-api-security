@@ -6,7 +6,6 @@ using System.Linq;
 using Newtonsoft.Json.Serialization;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
-using ApexUtilLib;
 
 namespace ApexUtilLibTest
 {
@@ -166,7 +165,7 @@ namespace ApexUtilLibTest
                             RSACryptoServiceProvider privateKey = null;
                             if (!certName.IsNullOrEmpty())
                             {
-                                privateKey = ApiAuthorization.GetPrivateKey(ApexUtilLib.PrivateKeyFileType.P12, GetLocalPath(privateCertPath), passphrase);
+                                privateKey = ApiAuthorization.GetPrivateKey(ApiUtilLib.PrivateKeyFileType.P12, GetLocalPath(privateCertPath), passphrase);
                             }
 
                             var authParam = new AuthParam();
