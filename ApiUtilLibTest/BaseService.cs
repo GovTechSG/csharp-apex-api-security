@@ -6,6 +6,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.IO.Compression;
 using System.Reflection;
+using System.Linq;
 
 namespace ApexUtilLibTest
 {
@@ -18,13 +19,13 @@ namespace ApexUtilLibTest
         //internal string apexTestSuitePath = "https://github.com/GovTechSG/test-suites-apex-api-security/zipball/master/";
         internal string apexTestSuitePath = "https://github.com/GovTechSG/test-suites-apex-api-security/zipball/development/";
 
-        internal string testDataPath = GetLocalPath("temp/GovTechSG-test-suites-apex-api-security-46232ac/testData/");
-        internal string testCertPath = GetLocalPath("temp/GovTechSG-test-suites-apex-api-security-46232ac/");
+        internal static string testDataPath = GetLocalPath("temp/GovTechSG-test-suites-apex-api-security-a922287/testData/");
+        internal static string testCertPath = GetLocalPath("temp/GovTechSG-test-suites-apex-api-security-a922287/");
 
         internal ApiUtilLib.SignatureMethod signatureMethod { get; set; }
         internal ApiUtilLib.HttpMethod httpMethod { get; set; }
-        internal ApiList apiList { get; set; }
-        internal FormList formData { get; set; }
+        //internal ApiList apiList { get; set; }
+        internal FormData formData { get; set; }
         internal string timeStamp { get; set; }
         internal string version { get; set; }
         internal string nonce { get; set; }
@@ -34,7 +35,9 @@ namespace ApexUtilLibTest
         internal Uri signatureURL { get; set; }
         internal string expectedResult { get; set; }
         internal bool errorTest { get; set; }
-        internal string[] skipTest { get; set; }
+
+        internal bool skipTest { get; set; }
+
         internal string realm { get; set; }
         internal Uri invokeUrl { get; set; }
         internal string secret { get; set; }
@@ -115,9 +118,12 @@ namespace ApexUtilLibTest
 
                 // queryString and formData must be saperated
                 //apiList = new ApiList();
-                apiList = SetApiList(paramFile.apiParam.formData);
-                formData = FormList.Convert(apiList);
-                var queryData = SetApiList(paramFile.apiParam.queryString);
+                //apiList = SetApiList(paramFile.apiParam.formData);
+                //formData = FormData.Convert(apiList);
+                formData = FormData.SetupList(paramFile.apiParam.formData);
+
+                //var queryData = SetApiList(paramFile.apiParam.queryString);
+                var queryData = QueryData.SetupList(paramFile.apiParam.queryString);
 
                 timeStamp = paramFile.apiParam.timestamp ?? "%s";
                 version = paramFile.apiParam.version ?? "1.0";
@@ -130,23 +136,24 @@ namespace ApexUtilLibTest
                 string queryString = "";
                 if (!paramFile.apiParam.signatureURL.IsNullOrEmpty())
                 {
-                    queryString = queryData.ToQueryString();
+                    queryString = queryData.ToString();
                     if (!queryString.IsNullOrEmpty())
                     {
-                        string joinChar = "?";
-                        if (paramFile.apiParam.signatureURL.IndexOf('?') > -1) joinChar = "&";
-                        queryString = joinChar + queryString;
+                        // query start with ?, replace ? with & when url already contain queryString
+                        if (paramFile.apiParam.signatureURL.IndexOf('?') > -1) queryString = queryString.Replace("?", "&");
                     }
                 }
                 signatureURL = paramFile.apiParam.signatureURL.IsNullOrEmpty() == true ? null : new System.Uri(string.Format("{0}{1}", paramFile.apiParam.signatureURL, queryString));
                 
                 expectedResult = CommonExtensions.GetCharp(paramFile.expectedResult);
                 errorTest = paramFile.errorTest;
-                skipTest = paramFile.skipTest;
+
+                skipTest = paramFile.skipTest == null ? false : paramFile.skipTest.Contains("c#");
+
                 invokeUrl = paramFile.apiParam.invokeURL.IsNullOrEmpty() == true ? null : new System.Uri(paramFile.apiParam.invokeURL);
                 secret = paramFile.apiParam.secret ?? null;
                 realm = paramFile.apiParam.realm ?? null;
-                passphrase = paramFile.apiParam.passphrase;// ?? "passwordp12";
+                passphrase = paramFile.apiParam.passphrase ?? paramFile.passphrase;// ?? "passwordp12";
             }
             catch (Exception ex)
             {
@@ -154,72 +161,72 @@ namespace ApexUtilLibTest
             }
         }
 
-        // change return type from void to ApiList
-        internal ApiList SetApiList(Dictionary<object, object> data = null)
-        {
-            try
-            {
-                var dataList = new ApiList();
+        //// change return type from void to ApiList
+        //internal ApiList SetApiList(Dictionary<object, object> data = null)
+        //{
+        //    try
+        //    {
+        //        var dataList = new ApiList();
 
-                if (data != null)
-                {
-                    foreach (var item in data)
-                    {
-                        var key = item.Key ?? "";
-                        var value = item.Value ?? "";
+        //        if (data != null)
+        //        {
+        //            foreach (var item in data)
+        //            {
+        //                var key = item.Key ?? "";
+        //                var value = item.Value ?? "";
 
-                        String value_s = value.ToString().Trim();
+        //                String value_s = value.ToString().Trim();
                        
-                        if (!key.ToString().IsNullOrEmpty())
-                        {
-                            string[] _queryParams = { "" };
-                            string val = null;
+        //                if (!key.ToString().IsNullOrEmpty())
+        //                {
+        //                    string[] _queryParams = { "" };
+        //                    string val = null;
 
-                            if (!value_s.IsNullOrEmpty() && !(value_s.StartsWith("{", StringComparison.InvariantCulture) && value_s.EndsWith("}", StringComparison.InvariantCulture)))
-                            {
+        //                    if (!value_s.IsNullOrEmpty() && !(value_s.StartsWith("{", StringComparison.InvariantCulture) && value_s.EndsWith("}", StringComparison.InvariantCulture)))
+        //                    {
                             
-                                val = value_s.RemoveString(new string[] { "\\", "\\ ", " \\", "\"", "\\  ", "\n" }).Unescape();
+        //                        val = value_s.RemoveString(new string[] { "\\", "\\ ", " \\", "\"", "\\  ", "\n" }).Unescape();
 
-                                if (val == "True")
-                                    val = "true";
-                                if (val == "False")
-                                    val = "false";
-                                if (val.StartsWith("[", StringComparison.InvariantCulture) && val.EndsWith("]", StringComparison.InvariantCulture))
-                                {
+        //                        if (val == "True")
+        //                            val = "true";
+        //                        if (val == "False")
+        //                            val = "false";
+        //                        if (val.StartsWith("[", StringComparison.InvariantCulture) && val.EndsWith("]", StringComparison.InvariantCulture))
+        //                        {
 
-                                    string[] _paramValues = { "" };
-                                    val = val.RemoveString(new string[] { "[", "]", " " });
-                                    _paramValues = val.Split(',');
-                                    foreach (var paramvalue in _paramValues)
-                                    {
-                                        var _paramvalue = paramvalue;
-                                        dataList.Add(key.ToString(), _paramvalue.Unescape());
-                                    }
+        //                            string[] _paramValues = { "" };
+        //                            val = val.RemoveString(new string[] { "[", "]", " " });
+        //                            _paramValues = val.Split(',');
+        //                            foreach (var paramvalue in _paramValues)
+        //                            {
+        //                                var _paramvalue = paramvalue;
+        //                                dataList.Add(key.ToString(), _paramvalue.Unescape());
+        //                            }
 
-                                }
-                                else
-                                {
-                                    dataList.Add(key.ToString(), val);
-                                }
-                            }
-                            else
-                            {
-                                dataList.Add(key.ToString(), val);
-                            }
+        //                        }
+        //                        else
+        //                        {
+        //                            dataList.Add(key.ToString(), val);
+        //                        }
+        //                    }
+        //                    else
+        //                    {
+        //                        dataList.Add(key.ToString(), val);
+        //                    }
 
-                        }
-                    }
-                }
+        //                }
+        //            }
+        //        }
 
-                return dataList;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
+        //        return dataList;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+        //    }
+        //}
 
-        internal IEnumerable<TestParam>
+        internal static IEnumerable<TestParam>
         GetJsonFile(string fileName)
         {
             string path = testDataPath + fileName;
@@ -230,16 +237,15 @@ namespace ApexUtilLibTest
             return jsonData;
         }
 
-
-        public static byte[] PEM(string type, byte[] data)
-        {
-            string pem = Encoding.ASCII.GetString(data);
-            string header = String.Format("-----BEGIN {0}-----", type);
-            string footer = String.Format("-----END {0}-----", type);
-            int start = pem.IndexOf(header) + header.Length;
-            int end = pem.IndexOf(footer, start);
-            string base64 = pem.Substring(start, (end - start));
-            return Convert.FromBase64String(base64);
-        }
+        //public static byte[] PEM(string type, byte[] data)
+        //{
+        //    string pem = Encoding.ASCII.GetString(data);
+        //    string header = String.Format("-----BEGIN {0}-----", type);
+        //    string footer = String.Format("-----END {0}-----", type);
+        //    int start = pem.IndexOf(header) + header.Length;
+        //    int end = pem.IndexOf(footer, start);
+        //    string base64 = pem.Substring(start, (end - start));
+        //    return Convert.FromBase64String(base64);
+        //}
     }
 }

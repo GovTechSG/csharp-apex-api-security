@@ -12,6 +12,8 @@ namespace ApexUtilLibTest
 
         public string publicCertFileName { get; set; }
 
+        public string passphrase { get; set; }
+
         public string[] skipTest { get; set; }
 
         public string message { get; set; }
@@ -23,6 +25,11 @@ namespace ApexUtilLibTest
         public bool errorTest { get; set; }
 
         public Dictionary<string, string> expectedResult { get; set; }
+
+        public override string ToString()
+        {
+            return $"{id} - {description}";
+        }
     }
 
     public class APIParam

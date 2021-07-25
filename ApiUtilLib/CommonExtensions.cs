@@ -1,4 +1,4 @@
-﻿using System;
+﻿//using System;
 using System.Text;
 
 namespace ApiUtilLib
@@ -8,10 +8,14 @@ namespace ApiUtilLib
         public static bool IsNullOrEmpty(this string value)
         {
             if (value == null)
+            {
                 return true;
+            }
 
-            if (value == String.Empty)
+            if (value == string.Empty)
+            {
                 return true;
+            }
 
             return false;
         }
@@ -23,10 +27,18 @@ namespace ApiUtilLib
             for (int ix = 0; ix < txt.Length;)
             {
                 int jx = txt.IndexOf('\n', ix);
-                if (jx < 0 || jx == txt.Length - 1) jx = txt.Length;
+                if (jx < 0 || jx == txt.Length - 1)
+                {
+                    jx = txt.Length;
+                }
+
                 retval.Append(txt, ix, jx - ix);
-                if (jx >= txt.Length) break;
-                var str = txt[jx + 1];
+                if (jx >= txt.Length)
+                {
+                    break;
+                }
+
+                //char str = txt[jx + 1];
                 switch (txt[jx + 1])
                 {
                     case 'n': retval.Append('\n'); break;  // Line feed
@@ -43,7 +55,7 @@ namespace ApiUtilLib
 
         public static string RemoveString(this string value, string[] array)
         {
-            foreach (var item in array)
+            foreach (string item in array)
             {
                 value = value.Replace(item, "");
             }

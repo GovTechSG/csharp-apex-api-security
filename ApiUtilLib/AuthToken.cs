@@ -1,41 +1,22 @@
-﻿using System;
+﻿//using System;
 using System.Collections.Generic;
 
 namespace ApiUtilLib
 {
     public class AuthToken
     {
-        private string _token;
-        private List<string> _list;
+        private readonly string _token;
 
         internal AuthToken(string token, List<string> baseStringList)
         {
             _token = token;
-            _list = baseStringList;
+            BaseStringList = baseStringList;
         }
 
-        public string Token
-        {
-            get
-            {
-                return _token;
-            }
-        }
+        public string Token => _token;
 
-        public List<string> BaseStringList
-        {
-            get
-            {
-                return _list;
-            }
-        }
+        public List<string> BaseStringList { get; }
 
-        public string BaseString
-        {
-            get
-            {
-                return String.Join(", ", _list.ToArray());
-            }
-        }
+        public string BaseString => string.Join(", ", BaseStringList.ToArray());
     }
 }

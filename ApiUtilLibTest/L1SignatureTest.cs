@@ -8,7 +8,7 @@ namespace ApiUtilLibTest
 	[TestFixture]
 	public class L1SignatureTest
     {
-		const string baseString = "message";
+        const string baseString = "message";
 		
         const string secret = "secret";
         const string secret2 = "5aes9wG4mQgWJBfKMuYLtrEtNslm1enWG2XpGaMk";

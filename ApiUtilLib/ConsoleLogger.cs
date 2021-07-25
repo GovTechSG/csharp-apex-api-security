@@ -4,17 +4,17 @@ namespace ApiUtilLib
 {
 	public class ConsoleLogger : LoggerBase
 	{
-		readonly string _messageFormat = "{0:yyyy-MM-dd HH:mm:ss.fff %K} : {1} : {2}";
+		private readonly string _messageFormat = "{0:yyyy-MM-dd HH:mm:ss.fff %K} : {1} : {2}";
 
-		public ConsoleLogger()
-		{
-			this.LogLevel = LogLevel.None;
-		}
+        public ConsoleLogger()
+        {
+            LogLevel = LogLevel.None;
+        }
 
         public ConsoleLogger(LogLevel logLevel)
-		{
-			this.LogLevel = logLevel;
-		}
+        {
+            LogLevel = logLevel;
+        }
 
         public override void LogMessage(LogLevel messageLogLevel, string message)
         {

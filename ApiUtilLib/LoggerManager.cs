@@ -1,9 +1,9 @@
-﻿using System;
+﻿//using System;
 namespace ApiUtilLib
 {
     public static class LoggerManager
     {
-		static LoggerBase _logger;
+		private static LoggerBase _logger;
 
 		public static LoggerBase Logger
 		{

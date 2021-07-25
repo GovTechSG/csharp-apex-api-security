@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Security.Cryptography;
-using ApiUtilLib;
+//using ApiUtilLib;
 
 namespace ApiUtilLib
 {
@@ -13,13 +13,13 @@ namespace ApiUtilLib
         public string appSecret;
         public RSACryptoServiceProvider privateKey = null;
 
-        public FormList formList;
+        public FormData formData;
 
         public string nonce;
         public string timestamp;
 
         internal SignatureMethod signatureMethod;
-        internal string version;
+        public string version = "1.0";
 
         public AuthParam nextHop;
     }
