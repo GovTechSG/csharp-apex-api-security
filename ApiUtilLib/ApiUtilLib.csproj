@@ -30,10 +30,10 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="Newtonsoft.Json">
-      <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="BouncyCastle.Crypto">
-      <HintPath>..\packages\BouncyCastle.1.8.3\lib\BouncyCastle.Crypto.dll</HintPath>
+      <HintPath>..\packages\BouncyCastle.1.8.9\lib\BouncyCastle.Crypto.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -50,7 +50,7 @@
     <Compile Include="SignatureMethod.cs" />
     <Compile Include="CommonExtensions.cs" />
     <Compile Include="FormList.cs" />
-    <Compile Include="PrivateKeyFileType.cs" />
+    <Compile Include="KeyFileType.cs" />
     <Compile Include="AuthToken.cs" />
     <Compile Include="AuthParam.cs" />
   </ItemGroup>

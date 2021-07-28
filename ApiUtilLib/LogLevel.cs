@@ -1,5 +1,4 @@
-﻿//using System;
-namespace ApiUtilLib
+﻿namespace ApiUtilLib
 {
 	// https://docs.microsoft.com/en-us/aspnet/core/fundamentals/logging?tabs=aspnetcore2x
 	// Trace = 0

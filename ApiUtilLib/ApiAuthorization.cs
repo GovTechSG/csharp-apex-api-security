@@ -5,14 +5,9 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Collections.Generic;
-//using Newtonsoft.Json.Converters;
-//using Newtonsoft.Json;
 using System.Linq;
-//using Org.BouncyCastle;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.OpenSsl;
-//using Org.BouncyCastle.Crypto.Encodings;
-//using Org.BouncyCastle.Crypto.Engines;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Security;
 
@@ -102,83 +97,6 @@ namespace ApiUtilLib
             return base64Token;
         }
 
-        //[Obsolete("PrivateKeyFromP12 is deprecated, please use GetPrivateKey instead.")]
-        //public static RSACryptoServiceProvider PrivateKeyFromP12(string certificateFileName, string password)
-        //{
-        //    Logger.LogEnterExit(LoggerBase.Args(certificateFileName, "***password***"));
-
-
-        //    var privateCert = new X509Certificate2(System.IO.File.ReadAllBytes(certificateFileName), password, X509KeyStorageFlags.Exportable);
-
-        //    var OriginalPrivateKey = (RSACryptoServiceProvider)privateCert.PrivateKey;
-
-        //    if (Environment.OSVersion.Platform == PlatformID.MacOSX || Environment.OSVersion.Platform == PlatformID.Unix)
-        //    {
-        //        return OriginalPrivateKey;
-        //    }
-        //    else
-        //    {
-        //        var privateKey = new RSACryptoServiceProvider();
-        //        privateKey.ImportParameters(OriginalPrivateKey.ExportParameters(true));
-
-        //        return privateKey;
-        //    }
-        //}
-
-        //public static string GetL2SignatureFromPEM(string filename, string message, string passPhrase)
-        //{
-        //    Logger.LogEnterExit(LoggerBase.Args(filename, "***password***"));
-        //    if (String.IsNullOrEmpty(message))
-        //    {
-        //        Logger.LogError("{0} must not be null or empty.", nameof(message));
-
-        //        throw new ArgumentNullException(nameof(message));
-        //    }
-
-        //    if (String.IsNullOrEmpty(filename))
-        //    {
-        //        Logger.LogError("{0} must not be null or empty.", nameof(filename));
-
-        //        throw new ArgumentNullException(nameof(filename));
-        //    }
-        //    string result = null;
-        //    try
-        //    {
-        //        using (FileStream fs = File.OpenRead(filename))
-        //        {
-        //            AsymmetricCipherKeyPair keyPair;
-        //            var obj = GetRSAProviderFromPem(File.ReadAllText(filename).Trim(), passPhrase);
-        //            byte[] bytes = Encoding.UTF8.GetBytes(message);
-
-        //            using (var reader = File.OpenText(filename)) 
-        //                keyPair = (AsymmetricCipherKeyPair)new PemReader(reader, new PasswordFinder(passPhrase)).ReadObject();
-        //            var decryptEngine = new Pkcs1Encoding(new RsaEngine());
-
-        //            decryptEngine.Init(false, keyPair.Private);
-        //            var str = obj.SignData(bytes, CryptoConfig.MapNameToOID("SHA256"));
-
-        //            result = System.Convert.ToBase64String(str);
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw ex;
-        //    }
-        //    return result;
-        //}
-
-        //[Obsolete("ImportPrivateKey is deprecated, please use GetPrivateKey instead.")]
-        //public static RSACryptoServiceProvider ImportPrivateKey(string pem)
-        //{
-        //    PemReader pr = new PemReader(new StringReader(pem));
-        //    AsymmetricCipherKeyPair KeyPair = (AsymmetricCipherKeyPair)pr.ReadObject();
-        //    RSAParameters rsaParams = DotNetUtilities.ToRSAParameters((RsaPrivateCrtKeyParameters)KeyPair.Private);
-
-        //    RSACryptoServiceProvider csp = new RSACryptoServiceProvider();
-        //    csp.ImportParameters(rsaParams);
-        //    return csp;
-        //}
-
         /// <summary>
         /// Supported Fie Types:
         ///     .PEM/.KEY - Private Key in pkcs1 format with Base64 Encoding, i.e. file start with
@@ -227,7 +145,7 @@ namespace ApiUtilLib
                         RsaPrivateCrtKeyParameters keyPair_pkcs8;
 
                         keyPair_pkcs8 = (RsaPrivateCrtKeyParameters)new PemReader(reader, new PasswordFinder(passPhrase)).ReadObject();
-                        rsaParams = DotNetUtilities.ToRSAParameters((RsaPrivateCrtKeyParameters)keyPair_pkcs8);
+                        rsaParams = DotNetUtilities.ToRSAParameters(keyPair_pkcs8);
                     }
                     else
                     {
@@ -244,93 +162,6 @@ namespace ApiUtilLib
 
             return privateKey;
         }
-
-        //public static X509Certificate2 LoadCertificateFile(string filename, string passPhrase)
-        //{
-        //    X509Certificate2 x509 = null;
-        //    try
-        //    {
-        //        using (FileStream fs = File.OpenRead(filename))
-        //        {
-        //            AsymmetricCipherKeyPair keyPair;
-        //            var obj = GetRSAProviderFromPem(File.ReadAllText(filename).Trim(), passPhrase);
-        //            byte[] bytes = Encoding.UTF8.GetBytes("message");
-
-        //            using (var reader = File.OpenText(filename)) 
-        //                keyPair = (AsymmetricCipherKeyPair)new PemReader(reader, new PasswordFinder(passPhrase)).ReadObject();
-        //            var decryptEngine = new Pkcs1Encoding(new RsaEngine());
-
-        //            decryptEngine.Init(false, keyPair.Private);
-        //            var str = obj.SignData(bytes, CryptoConfig.MapNameToOID("SHA256"));
-
-        //            var base64 = System.Convert.ToBase64String(str);
-
-        //            var privateCert = new X509Certificate2(base64, passPhrase, X509KeyStorageFlags.Exportable);
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw ex;
-        //    }
-        //    return x509;
-        //}
-
-
-        //public static RSACryptoServiceProvider GetRSAProviderFromPem(String pemstr, string password)
-        //{
-        //    CspParameters cspParameters = new CspParameters();
-        //    cspParameters.KeyContainerName = "MyKeyContainer";
-        //    RSACryptoServiceProvider rsaKey = new RSACryptoServiceProvider(cspParameters);
-
-        //    Func<RSACryptoServiceProvider, RsaKeyParameters, RSACryptoServiceProvider> MakePublicRCSP = (RSACryptoServiceProvider rcsp, RsaKeyParameters rkp) =>
-        //    {
-        //        RSAParameters rsaParameters = DotNetUtilities.ToRSAParameters(rkp);
-        //        rcsp.ImportParameters(rsaParameters);
-        //        return rsaKey;
-        //    };
-
-        //    Func<RSACryptoServiceProvider, RsaPrivateCrtKeyParameters, RSACryptoServiceProvider> MakePrivateRCSP = (RSACryptoServiceProvider rcsp, RsaPrivateCrtKeyParameters rkp) =>
-        //    {
-        //        RSAParameters rsaParameters = DotNetUtilities.ToRSAParameters(rkp);
-        //        rcsp.ImportParameters(rsaParameters);
-        //        return rsaKey;
-        //    };
-        //    //IPasswordFinder pwd;
-        //    PemReader reader;
-        //    reader = new PemReader(new StringReader(pemstr), new PasswordFinder(password));
-        //    object kp = reader.ReadObject();
-
-        //    if (kp.GetType().GetProperty("Private") != null)
-        //    {
-        //        return MakePrivateRCSP(rsaKey, (RsaPrivateCrtKeyParameters)(((AsymmetricCipherKeyPair)kp).Private));
-        //    }
-        //    else
-        //    {
-        //        return MakePublicRCSP(rsaKey, (RsaKeyParameters)kp);
-        //    }
-        //}
-
-
-
-        //public static byte[] PEM(string type, byte[] data)
-        //{
-        //    string pem = Encoding.ASCII.GetString(data);
-        //    string header = String.Format("-----BEGIN {0}-----", type);
-        //    string footer = String.Format("-----END {0}-----", type);
-        //    int start = pem.IndexOf(header) + header.Length;
-        //    int end = pem.IndexOf(footer, start);
-        //    string base64 = pem.Substring(start, (end - start));
-        //    return Convert.FromBase64String(base64);
-        //}
-
-        //public static RSACryptoServiceProvider PublicKeyFromCer(string certificateFileName)
-        //{
-        //    Logger.LogEnterExit(LoggerBase.Args(certificateFileName));
-
-        //    var cert = new X509Certificate2(System.IO.File.ReadAllBytes(certificateFileName));
-
-        //    return (RSACryptoServiceProvider)cert.PublicKey.Key;
-        //}
 
         /// <summary>
         /// Supported File Types:
@@ -401,26 +232,6 @@ namespace ApiUtilLib
             Logger.LogExit(LoggerBase.Args(signatureValid));
             return signatureValid;
         }
-
-  //      // keep for compatibility only
-  //      [Obsolete("BaseString with ApiList parameter is deprecated, please use BaseString with FormList instead.")]
-  //      public static string BaseString(
-		//	string authPrefix
-  //          , SignatureMethod signatureMethod
-		//	, string appId
-		//	, Uri siteUri
-  //          , HttpMethod httpMethod
-		//	, ApiList formList
-		//	, string nonce
-		//	, string timestamp
-  //          , string version)
-		//{
-  //          FormData formData = null;
-  //          if (formList != null)
-  //              formData = FormData.Convert(formList);
-
-  //          return BaseString(authPrefix, signatureMethod, appId, siteUri, formData, httpMethod, nonce, timestamp, version);
-  //      }
 
         public static string BaseString(
             string authPrefix
@@ -526,189 +337,6 @@ namespace ApiUtilLib
             Logger.LogEnterExit(LoggerBase.Args(nonce.ToString()));
             return Convert.ToBase64String(data);
         }
-
-        //[Obsolete("Token is deprecated, please use TokenV2 instead.")]
-        //public static String Token(
-        //    string realm
-        //    , string authPrefix
-        //    , HttpMethod httpMethod
-        //    , Uri urlPath
-        //    , string appId
-        //    , string secret = null
-        //    , ApiList formList = null
-        //    , RSACryptoServiceProvider privateKey = null
-        //    , string nonce = null
-        //    , string timestamp = null
-        //    , string version = "1.0")
-        //{
-        //    String nullValueErrMsg = "One or more required parameters are missing!";
-        //    try
-        //    {
-        //        Logger.LogEnter(LoggerBase.Args(realm, authPrefix, httpMethod, urlPath, appId, secret, formList == null ? null : formList.ToFormData(), privateKey, nonce, timestamp, version));
-
-        //        Logger.LogDebug("URL:: {0}", urlPath);
-        //        if (String.IsNullOrEmpty(authPrefix))
-        //        {
-        //            Logger.LogError(nullValueErrMsg);
-        //            throw new ArgumentNullException(nameof(authPrefix));
-        //        }
-
-
-        //        authPrefix = authPrefix.ToLower();
-
-        //        // Generate the nonce value
-        //        nonce = nonce ?? ApiAuthorization.NewNonce().ToString();
-        //        timestamp = timestamp ?? ApiAuthorization.NewTimestamp().ToString();
-
-        //        SignatureMethod signatureMethod = SignatureMethod.HMACSHA256;
-        //        if (secret == null)
-        //        {
-        //            signatureMethod = SignatureMethod.SHA256withRSA;
-        //        }
-
-        //        String baseString = BaseString(authPrefix, signatureMethod
-        //            , appId, urlPath, httpMethod
-        //            , formList, nonce, timestamp, version);
-
-        //        String base64Token = "";
-        //        if (secret != null)
-        //        {
-        //            base64Token = baseString.L1Signature(secret);
-        //        }
-        //        else
-        //        {
-        //            base64Token = baseString.L2Signature(privateKey);
-        //        }
-
-        //        var tokenList = new ApiList();
-
-        //        tokenList.Add("realm", realm);
-        //        tokenList.Add(authPrefix + "_app_id", appId);
-        //        tokenList.Add(authPrefix + "_nonce", nonce);
-        //        tokenList.Add(authPrefix + "_signature_method", signatureMethod.ToString());
-        //        tokenList.Add(authPrefix + "_timestamp", timestamp);
-        //        tokenList.Add(authPrefix + "_version", version);
-        //        tokenList.Add(authPrefix + "_signature", base64Token);
-
-        //        string authorizationToken = string.Format("{0} {1}", authPrefix.Substring(0, 1).ToUpperInvariant() + authPrefix.Substring(1), tokenList.ToString(", ", false, true));
-
-        //        Logger.LogDebug("Token :: {0}", authorizationToken);
-
-        //        Logger.LogExit(LoggerBase.Args(authorizationToken));
-        //        return authorizationToken;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw ex;
-        //    }
-        //}
-
-    //    [Obsolete("HttpRequest with ApiList is deprecated, please use HttpRequest with FormList instead.")]
-    //    public static int HttpRequest(Uri url, string token = null, ApiList postData = null, HttpMethod httpMethod = HttpMethod.GET, bool ignoreServerCert = false)
-    //    {
-    //        Logger.LogEnter(LoggerBase.Args(url, token, postData == null ? "null" : postData.ToFormData(), httpMethod));
-
-    //        int returnCode = 0;
-
-    //        if (ignoreServerCert) InitiateSSLTrust();
-
-    //        WebResponse response = null;
-    //        StreamReader reader = null;
-    //        Stream dataStream = null;
-
-    //        try
-    //        {
-    //            // Create a request using a URL that can receive a post.   
-    //            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-
-    //            request.Method = httpMethod.ToString();
-
-    //            if (!string.IsNullOrEmpty(token)) request.Headers.Add("Authorization", token);
-
-    //            if (postData != null)
-    //            {
-    //                // Set the Method property of the request to POST.  
-    //                request.Method = HttpMethod.POST.ToString();
-
-    //                // Create POST data and convert it to a byte array.
-    //                //string postData = "This is a test that posts this string to a Web server.";
-    //                byte[] byteArray = Encoding.UTF8.GetBytes(postData.ToFormData());
-
-    //                // Set the ContentType property of the WebRequest.  
-    //                request.ContentType = "application/x-www-form-urlencoded";
-
-    //                // Set the ContentLength property of the WebRequest.  
-    //                request.ContentLength = byteArray.Length;
-
-    //                // Get the request stream.  
-    //                dataStream = request.GetRequestStream();
-
-    //                // Write the data to the request stream.  
-    //                dataStream.Write(byteArray, 0, byteArray.Length);
-
-    //                // Close the Stream object.  
-    //                dataStream.Close();
-    //            }
-
-    //            // Get the response.  
-    //            response = request.GetResponse();
-
-    //            // Display the status.  
-    //            Logger.LogDebug("Response Code:: {0} - {1}", ((HttpWebResponse)response).StatusDescription, (int)(((HttpWebResponse)response).StatusCode));
-
-    //            returnCode = (int)(((HttpWebResponse)response).StatusCode);
-
-    //            // Get the stream containing content returned by the server.  
-    //            dataStream = response.GetResponseStream();
-
-    //            // Open the stream using a StreamReader for easy access.  
-    //            reader = new StreamReader(dataStream);
-
-    //            // Read the content.  
-    //            string responseFromServer = reader.ReadToEnd();
-
-    //            // Display the content.  
-    //            Logger.LogDebug("Response Data :: {0}", responseFromServer);
-    //        }
-    //        catch (WebException e)
-    //        {                
-    //            if (e.Status == WebExceptionStatus.ProtocolError)
-    //            {
-    //                response = (HttpWebResponse)e.Response;
-					
-    //                returnCode = (int)(((HttpWebResponse)response).StatusCode);
-
-    //                Logger.LogWarning("Error Code: {0} - {1}", returnCode, (((HttpWebResponse)response).StatusDescription));
-
-				//	// Get the stream containing content returned by the server.  
-				//	dataStream = response.GetResponseStream();
-
-				//	// Open the stream using a StreamReader for easy access.  
-				//	reader = new StreamReader(dataStream);
-
-				//	// Read the content.  
-				//	string responseFromServer = reader.ReadToEnd();
-
-				//	// Display the content.  
-				//	Logger.LogDebug("Response Data :: {0}", responseFromServer);
-				//}
-    //            else
-    //            {
-    //                Logger.LogError("Error: {0}", e.Status);
-    //                Logger.LogError("Error: {0}", e.ToString());
-    //            }
-    //        }
-    //        finally
-    //        {
-    //            // Clean up the streams and the response.  
-    //            if (response != null) response.Close();
-    //            if (reader != null) reader.Close();
-    //            if (dataStream != null) dataStream.Close();
-    //        }
-
-    //        Logger.LogExit(LoggerBase.Args(returnCode));
-    //        return returnCode;
-    //    }
 
         public static int HttpRequest(Uri url, string token, FormData formData, HttpMethod httpMethod = HttpMethod.GET, bool ignoreServerCert = false)
         {
@@ -835,7 +463,7 @@ namespace ApiUtilLib
 
         private static bool iniSslTrust;
 
-        public static void InitiateSSLTrust()
+        private static void InitiateSSLTrust()
         {
             if (iniSslTrust)
             {
@@ -982,7 +610,7 @@ namespace ApiUtilLib
                 authParam.nextHop.formData = authParam.formData;
 
                 // get the apexToken for nextHop
-                AuthToken nextHopResult = ApiAuthorization.TokenV2(authParam.nextHop);
+                AuthToken nextHopResult = TokenV2(authParam.nextHop);
 
                 // save the baseString
                 baseStringList.Add(nextHopResult.BaseString);

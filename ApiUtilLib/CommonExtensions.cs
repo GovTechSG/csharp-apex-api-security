@@ -1,5 +1,4 @@
-﻿//using System;
-using System.Text;
+﻿using System.Text;
 
 namespace ApiUtilLib
 {
@@ -7,17 +6,7 @@ namespace ApiUtilLib
     {
         public static bool IsNullOrEmpty(this string value)
         {
-            if (value == null)
-            {
-                return true;
-            }
-
-            if (value == string.Empty)
-            {
-                return true;
-            }
-
-            return false;
+            return value == null || value == string.Empty;
         }
 
         public static string Unescape(this string txt)

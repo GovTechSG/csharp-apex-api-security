@@ -40,13 +40,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BaseStringTest.cs" />
-    <Compile Include="L1SignatureTest.cs" />
-    <Compile Include="L2SignatureTest.cs" />
-    <Compile Include="AuthorizationTokenTest.cs" />
     <Compile Include="TestParam.cs" />
     <Compile Include="TestDataTest.cs" />
-    <Compile Include="TestDataService.cs" />
     <Compile Include="CommonExtensions.cs" />
     <Compile Include="BaseService.cs" />
   </ItemGroup>
@@ -67,6 +62,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />
+    <None Include="..\.editorconfig" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Certificates\" />

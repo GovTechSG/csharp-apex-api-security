@@ -1,5 +1,4 @@
 ﻿using System;
-//using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 namespace ApiUtilLib
@@ -21,10 +20,10 @@ namespace ApiUtilLib
         }
 
 		public LogLevel LogLevel
-		{
-			get { return _logLevel; }
-			set { _logLevel = value; }
-		}
+        {
+            get => _logLevel;
+            set => _logLevel = value;
+        }
 
         void ILogger.Log(LogLevel logLevel, string message)
         {
@@ -49,6 +48,8 @@ namespace ApiUtilLib
                     break;
                 case LogLevel.Critical:
                     LogCritical(message);
+                    break;
+                default:
                     break;
             }
         }

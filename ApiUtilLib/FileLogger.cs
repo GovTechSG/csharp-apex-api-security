@@ -24,7 +24,6 @@ namespace ApiUtilLib
 
 		public override void LogMessage(LogLevel messageLogLevel, string message)
 		{
-			//Console.WriteLine(_messageFormat, DateTime.Now, messageLogLevel.ToString(), message);
 			WriteLog(string.Format(_messageFormat, DateTime.Now, messageLogLevel.ToString(), message));
 		}
 

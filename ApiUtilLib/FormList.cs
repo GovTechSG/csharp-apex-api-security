@@ -156,18 +156,6 @@ namespace ApiUtilLib
         {
             return SetupList<FormData>(data);
         }
-
-        //public static FormData Convert(ApiList apiList)
-        //{
-        //    var formData = new FormData();
-
-        //    foreach (var item in apiList)
-        //    {
-        //        formData.Add(item.Key, item.Value);
-        //    }
-
-        //    return formData;
-        //}
     }
 
     public class QueryData : BaseList
@@ -202,95 +190,6 @@ namespace ApiUtilLib
         }
     }
 
-
-    //public class FormList : List<KeyValuePair<string, FormField>>
-    //{
-    //    public FormList()
-    //    {
-    //    }
-
-    //    public void Add(string key, string[] value)
-    //    {
-    //        var newValue = new FormField(value);
-    //        this.Add(key, newValue);
-    //    }
-
-    //    public void Add(string key, string value)
-    //    {
-    //        var newValue = new FormField(value);
-    //        this.Add(key, newValue);
-    //    }
-
-    //    private void Add(string key, FormField value)
-    //    {
-    //        var formField = this.FirstOrDefault(x => x.Key == key);
-
-    //        if (formField.Key == key)
-    //        {
-    //            formField.Value.Add(value.RawValue);
-    //        }
-    //        else
-    //        {
-    //            KeyValuePair<string, FormField> item = new KeyValuePair<string, FormField>(key, value);
-
-    //            value.Key = key;
-
-    //            this.Add(item);
-    //        }
-    //    }
-
-    //    // baseString
-    //    internal List<KeyValuePair<string, string>> GetFormList()
-    //    {
-    //        var list = new List<KeyValuePair<string, string>>();
-
-    //        foreach (var item in this)
-    //        {
-    //            var newItem = new KeyValuePair<string, string>(item.Key, item.Value.Value);
-
-    //            list.Add(newItem);
-    //        }
-
-    //        return list;
-    //    }
-
-    //    public string ToFormData()
-    //    {
-    //        string delimiter = "&";
-
-    //        var list = new List<string>();
-
-    //        string format = "{0}={1}";
-
-    //        foreach (var item in this)
-    //        {
-    //            list.Add(string.Format(format, System.Net.WebUtility.UrlEncode(item.Key), item.Value.FormValue));
-    //        }
-
-    //        return String.Join(delimiter, list.ToArray());
-    //    }
-    //    public string ToQueryString()
-    //    {
-    //        var queryString = ToFormData();
-
-    //        if (queryString.Length > 0) queryString = string.Format("?{0}", queryString);
-
-    //        return queryString;
-    //    }
-
-    //    public static FormList Convert(ApiList apiList)
-    //    {
-    //        var formList = new FormList();
-
-    //        foreach (var item in apiList)
-    //        {
-    //            formList.Add(item.Key, item.Value);
-    //        }
-
-    //        return formList;
-    //    }
-    //}
-
     public class FormField
     {
         private string _key = null;
@@ -300,10 +199,7 @@ namespace ApiUtilLib
 
         internal string Key
         {
-            set
-            {
-                _key = value;
-            }
+            set => _key = value;
         }
 
         internal void Add(string[] newValue)
@@ -338,13 +234,7 @@ namespace ApiUtilLib
             _arrayValue = value;
         }
 
-        internal string[] RawValue
-        {
-            get
-            {
-                return _value != null ? (new string[] { _value }) : _arrayValue;
-            }
-        }
+        internal string[] RawValue => _value != null ? (new string[] { _value }) : _arrayValue;
 
         public string FormValue
         {
