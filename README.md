@@ -5,7 +5,7 @@
 
 A C# helper utility that construct and sign HTTP Authorization header scheme for API authentication and verification
 
-## Table of Contents
+## Table of Contents (version 2.0 - beta)
 - [Getting Started](#getting-started)
     * [Prerequisites](#prerequisites)
     * [APIList Interface](#using-the-apilist-class)
@@ -22,8 +22,8 @@ A C# helper utility that construct and sign HTTP Authorization header scheme for
 
 ### Prerequisites
 + .NET Framework 4.6.1
-+ Visual Studio IDE 2015/2017 Community+
-+ NUnit Framework 3.8+ (for Windows Platform)
++ Visual Studio 2019 Community
++ NUnit Framework 3.13+
 
 Make sure that all unit test cases are passed before using the library.
 
@@ -40,32 +40,32 @@ For windows users , NUnitTestAdapter have to be installed before you can run the
 4.  Click install, and select existing project ApiSecuritySolution to add the adapter.
 
 
-### Using the ApiList Class
-The ApiUtilLib Library provide the utility class ApiList to construct request Query String and Form Data.
+### Using the QueryData and FormData Class
+The ApiUtilLib Library provide the utility class QueryData to construct request Query String and Form Data.
 
 #### Generate QueryString
 ```
-    var queryParam = new ApiUtilLib.ApiList();
+    var queryData = new QueryData();
 
-    queryParam.Add("clientId", "1256-1231-4598");
-    queryParam.Add("accountStatus", "active");
-    queryParam.Add("txnDate", "2017-09-29");
+    queryData.Add("clientId", "1256-1231-4598");
+    queryData.Add("accountStatus", "active");
+    queryData.Add("txnDate", "2017-09-29");
 
-    string queryString = queryParam.ToQueryString();
+    string queryString = queryData.ToString();
 
-    string baseUrl = string.Format("https://example.com/resource/?{0}", queryString);
-    // https://example.com/resource/?clientId=1256-1231-4598&accountStatus=active&txnDate=2017-09-29
+    string baseUrl = string.Format("https://example.com/resource{0}", queryString);
+    // https://example.com/resource?clientId=1256-1231-4598&accountStatus=active&txnDate=2017-09-29
 ```
 
 #### Generate FormData
 ```
-    var formData = new ApiUtilLib.ApiList();
+    var formData = new FormData();
 
     formData.Add("phoneNo", "+1 1234 4567 890");
     formData.Add("street", "Hellowood Street");
     formData.Add("state", "AP");
 
-    string formData = formData.ToFormData();
+    string formData = formData.ToString();
     // phoneNo=%2B1+1234+4567+890&street=Hellowood+Street&state=AP
 ```
 
@@ -76,160 +76,194 @@ When you use this client library method **ApiAuthorization.HttpRequest**, it wil
 
 ### How to Generate HMAC256 L1 Authorization Header
 ```
-public static void L1Sample()
+public void L1Sample()
 {
-    // application realm
-    string realm = "<<your_client_host_url>>";
+    var URL = "https://{gatewayName}.api.gov.sg/api/v1/resource";
+    var APP_NAME = "{appName}";
+    var APP_SECRET = "{appSecret}";
 
-    // authorization prefix (i.e 'Apex_l1_eg' )
-    string authPrefix = "<<authPrefix>>";
+    // prepare form data
+    var formData = new FormData();
+    formData.Add("q", "how to validate signature in pdf");
+    formData.Add("ei", "yAr8YLmwCM_Fz7sPsKmLoAU");
 
-    // app id and app secret assign to the application
-    string appId = "<<appId>>";
-    string appSecret = "<<appSecret>>";
+    var authParam = new AuthParam()
+    {
+        url = new Uri($"{URL}"),
+        httpMethod = HttpMethod.POST,
 
-    // api signing Internet gateway name and path (for Intranet i.e <tenant>-pvt.i.api.gov.sg)
-    string signingGateway = "<tenant>.e.api.gov.sg";
-    string apiPath = "api/v1/l1/";
+        appName = APP_NAME,
+        appSecret = APP_SECRET,
 
-    // query string (optional)
-    var queryParam = new ApiUtilLib.ApiList();
+        formData = formData
+    };
 
-    queryParam.Add("clientId", "1256-1231-4598");
-    queryParam.Add("accountStatus", "active");
-    queryParam.Add("txnDate", "2017-09-29");
+    // get the authorization token for L1
+    var authToken = ApiAuthorization.TokenV2(authParam);
 
-    string queryString = queryParam.ToQueryString();
+    Console.WriteLine($"\n>>> BaseString :: '{authToken.BaseString}'<<<");
+    Console.WriteLine($"\n>>> Authorization Token :: '{authToken.Token}'<<<");
 
-    string baseUrl = string.Format("https://{0}/{1}?{2}", signingGateway, apiPath, queryString);
-
-    // form data (optional)
-    var formData = new ApiUtilLib.ApiList();
-
-    formData.Add("phoneNo", "+1 1234 4567 890");
-    formData.Add("street", "Hellowood Street");
-    formData.Add("state", "AP");
-
-    // authorization header
-    var authorizationHeader = ApiAuthorization.Token(realm, authPrefix, HttpMethod.POST, new Uri(baseUrl), appId, appSecret, formData);
-
-    Console.WriteLine("\n>>>Authorization Header :: '{0}'<<<", authorizationHeader);
-
-    // no need append .e on the target Internet gateway name (for Intranet i.e <tenant>-pvt.api.gov.sg)
-    string targetGatewayName = "<tenant>.api.gov.sg";
-    string targetBaseUrl = string.Format("https://{0}/{1}?{2}", targetGatewayName, apiPath, queryString);
-
-    // this method only for verification only
-    // expecting result to be 200
-    var result = ApiAuthorization.HttpRequest(new Uri(targetBaseUrl), authorizationHeader, formData, HttpMethod.POST, ignoreServerCert: true);
+    // make api call with authToken.Token
 }
 ```
 
 ### How to Generate RSA256 L2 Authorization Header
 ```
-public static void L2Sample()
+public void L2Sample()
 {
-    // application realm
-    string realm = "<<your_client_host_url>>";
+    var URL = "https://{gatewayName}.api.gov.sg/api/v1/resource";
+    var APP_NAME = "{appName}";
+    var PRIVATE_KEY_FILE_NAME = "privateKey.key";
+    var PRIVATE_KEY_PASSPHRASE = "{passphrase}";
 
-    // authorization prefix (i.e 'Apex_l2_eg' )
-    string authPrefix = "<<authPrefix>>";
+    // get the private key from pem file (in pkcs1 format)
+    var privateKey = ApiAuthorization.GetPrivateKey(ApiUtilLib.PrivateKeyFileType.PEM_PKCS1, PRIVATE_KEY_FILE_NAME, PRIVATE_KEY_PASSPHRASE);
 
-    // app id i.e 'Apex_l2_eg' assign to the application
-    string appId = "<<appId>>";
+    // prepare queryString
+    var queryData = new QueryData();
+    queryData.Add("view", "net-5.0");
+    queryData.Add("system", "C# sample code");
 
-    // api signing gateway name and path (for Intranet i.e <tenant>-pvt.i.api.gov.sg)
-    string signingGateway = "<tenant>.e.api.gov.sg";
-    string apiPath = "api/v1/l2/";
+    // get url safe querystring from ToString()
+    Console.WriteLine($">>> Query String >>>{queryData.ToString()}<<<");
 
-    // query string (optional)
-    var queryParam = new ApiUtilLib.ApiList();
+    // prepare form data
+    var formData = new FormData();
+    formData.Add("name", "peter pan");
+    formData.Add("age", "12");
 
-    queryParam.Add("clientId", "1256-1231-4598");
-    queryParam.Add("accountStatus", "active");
-    queryParam.Add("txnDate", "2017-09-29");
+    var authParam = new AuthParam()
+    {
+        url = new Uri($"{URL}{queryData.ToString()}"),
+        httpMethod = HttpMethod.POST,
 
-    string queryString = queryParam.ToQueryString();
+        appName = APP_NAME,
+        privateKey = privateKey,
 
-    string baseUrl = string.Format("https://{0}/{1}?{2}", signingGateway, apiPath, queryString);
+        formData = formData
+    };
 
-    // form data (optional)
-    var formData = new ApiUtilLib.ApiList();
+    // get the authorization token for L1
+    var authToken = ApiAuthorization.TokenV2(authParam);
 
-    formData.Add("phoneNo", "+1 1234 4567 890");
-    formData.Add("street", "Hellowood Street");
-    formData.Add("state", "AP");
+    Console.WriteLine($"\n>>> BaseString :: '{authToken.BaseString}'<<<");
+    Console.WriteLine($"\n>>> Authorization Token :: '{authToken.Token}'<<<");
 
-    // private cert file and password
-    string privateCertName = GetLocalPath("Certificates/alpha.example.api.com.p12");
-    string password = "password";
-
-    // get the private key from cert
-    var privateKey = ApiAuthorization.PrivateKeyFromP12(privateCertName, password);
-    
-    // authorization header
-    var authorizationHeader = ApiAuthorization.Token(realm, authPrefix, HttpMethod.POST, new Uri(baseUrl), appId, null, formData, privateKey);
-
-    // no need append .e on the target gateway name (for Intranet i.e <tenant>-pvt.api.gov.sg)
-    string targetGatewayName = "<tenant>.api.gov.sg";
-    string targetBaseUrl = string.Format("https://{0}/{1}?{2}", targetGatewayName, apiPath, queryString);
-
-    // this method only for verification only
-    // expecting result to be 200
-    var result = ApiAuthorization.HttpRequest(new Uri(targetBaseUrl), authorizationHeader, formData, HttpMethod.POST, ignoreServerCert: true);
-}
-
-static string GetLocalPath(string relativeFileName)
-{
-    var localPath = Path.Combine(Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath), relativeFileName.Replace('/', Path.DirectorySeparatorChar));
-
-    return localPath;
+    // make api call with authToken.Token
 }
 ```
-#### Sample HTTP POST Call for x-www-form-urlencoded with APEX L1 Security (for reference only)
+#### Sample L21 call for cross zone api from internet to intranet
 
 ```
-[Test]
-public static void Http_Call_Test()
+public void L21Sample()
 {
-    // application realm
-    string realm = "http://example.api.test/token";
+    var URL_WWW = "https://{www_gatewayName}.api.gov.sg/api/v1/resource";
+    var APP_NAME_WWW = "www_appName";
+    var PRIVATE_KEY_FILE_NAME = "www_privateKey.key");
+    var PRIVATE_KEY_PASSPHRASE = "{password}";
 
-    // authorization prefix
-    string authPrefix = "Apex_l1_eg";
+    var URL_WOG = "https://{wog_gatewayName}.api.gov.sg/api/v1/resource";
+    var APP_NAME_WOG = "{wog_AppName}";
+    var APP_SECRET_WOG = "{wog_appSecret}";
 
-    // app id and app secret assign to the application
-    string appId = "tenant-1X2w7NQPzjO2azDu904XI5AE";
-    string appSecret = "s0m3s3cr3t";
-    var formData = new ApiUtilLib.ApiList();
+    // get the private key from pem file (in pkcs1 format)
+    var privateKey = ApiAuthorization.GetPrivateKey(ApiUtilLib.PrivateKeyFileType.PEM_PKCS1, PRIVATE_KEY_FILE_NAME, PRIVATE_KEY_PASSPHRASE);
 
-    formData.Add("key1", "value1);
-    formData.Add("key2", "value2");
-    
-    // api signing gateway name and path
-    string gatewayName = "https://tenant.e.api.gov.sg";
-    string apiPath = "api14021live/resource";
-    string baseUrl = string.Format("{0}/{1}", gatewayName, apiPath);
-    Console.WriteLine("\n>>>baseUrl :: '{0}'<<<", baseUrl);
-    Console.WriteLine("\n>>>appId :: '{0}'<<<", appId);
-    Console.WriteLine("\n>>>appSecret :: '{0}'<<<", appSecret);
-    // authorization header
-    var authorizationHeader = ApiAuthorization.Token(realm, authPrefix, HttpMethod.POST, new Uri(baseUrl), appId, appSecret, formData);
+    // prepare queryString
+    var queryData = new QueryData();
+    queryData.Add("view", "net-5.0");
+    queryData.Add("system", "C# sample code");
 
-    Console.WriteLine("\n>>>Authorization Header :: '{0}'<<<", authorizationHeader);
+    // prepare form data
+    var formData = new FormData();
+    formData.Add("name", "peter pan");
+    formData.Add("age", "12");
 
-    // if the target gateway name is different from signing gateway name
-    string targetBaseUrl = "https://tenant.api.gov.sg/api14021live/resource";
+    // prepare the parameters
+    var authParam = new AuthParam()
+    {
+        url = new Uri($"{URL_WWW}{queryData.ToString()}"),
+        httpMethod = HttpMethod.POST,
 
+        appName = APP_NAME_WWW,
+        privateKey = privateKey,
 
-    // this method only for verification only
-    // expecting result to be 200
+        formData = formData,
 
-    var result = ApiAuthorization.HttpRequest(new Uri(targetBaseUrl), authorizationHeader, formData, HttpMethod.POST, ignoreServerCert: true);
-    Console.WriteLine(result);
-    Console.ReadLine();
+        nextHop = new AuthParam()
+        {
+            url = new Uri($"{URL_WOG}{queryData.ToString()}"),
 
-    Assert.True(true);
+            appName = APP_NAME_WOG,
+            appSecret = APP_SECRET_WOG
+        }
+    };
+
+    // get the authorization token for L21
+    var authToken = ApiAuthorization.TokenV2(authParam);
+
+    Console.WriteLine($"\n>>>{tag}<<< BaseString :: '{authToken.BaseString}'<<<");
+    Console.WriteLine($"\n>>>{tag}<<< Authorization Token :: '{authToken.Token}'<<<");
+
+    // make api call with authToken.Token
+}
+
+```
+#### Sample L12 call for cross zone api from intranet to internet
+
+```
+public void L12Sample()
+{
+    var URL_WOG = "https://{wog_gatewayName}.api.gov.sg/api/v1/reslource";
+    var APP_NAME_WOG = "{wog_appName}";
+    var APP_SECRET_WOG = "{wog_AppSecret}";
+
+    var URL_WWW = "https://{www_appName}.api.gov.sg/api/v1/resource";
+    var APP_NAME_WWW = "{www_AppName}";
+    var PRIVATE_KEY_FILE_NAME = "Certificates/www_privateKey.pkcs8");
+    var PRIVATE_KEY_PASSPHRASE = "{passphrase}";
+
+    // get the private key from pem file (in pkcs8 format)
+    var privateKey = ApiAuthorization.GetPrivateKey(ApiUtilLib.PrivateKeyFileType.PEM_PKCS8, PRIVATE_KEY_FILE_NAME, PRIVATE_KEY_PASSPHRASE);
+
+    // prepare queryString
+    var queryData = new QueryData();
+    queryData.Add("view", "net-5.0");
+    queryData.Add("system", "C# sample code");
+
+    // prepare form data
+    var formData = new FormData();
+    formData.Add("name", "peter pan");
+    formData.Add("age", "12");
+
+    // prepare the token parameters
+    var authParam = new AuthParam()
+    {
+        url = new Uri($"{URL_WOG}{queryData.ToString()}"),
+        httpMethod = HttpMethod.POST,
+
+        appName = APP_NAME_WOG,
+        appSecret = APP_SECRET_WOG,
+
+        formData = formData,
+
+        nextHop = new AuthParam()
+        {
+            url = new Uri($"{URL_WWW}{queryData.ToString()}"),
+
+            appName = APP_NAME_WWW,
+            privateKey = privateKey,
+        }
+    };
+
+    // get the authorization token
+    var authToken = ApiAuthorization.TokenV2(authParam);
+
+    Console.WriteLine($"\n>>> BaseString :: '{authToken.BaseString}'<<<");
+    Console.WriteLine($"\n>>> Authorization Token :: '{authToken.Token}'<<<");
+
+    // make api call with authToken.Token
 }
 
 ```
