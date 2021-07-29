@@ -2,13 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-//using System.Security.Cryptography;
-//using System.Text;
 using System.IO.Compression;
 using System.Reflection;
 using System.Linq;
 using Newtonsoft.Json;
-//using NUnit.Framework;
 
 namespace ApexUtilLibTest
 {
@@ -125,9 +122,14 @@ namespace ApexUtilLibTest
                 FormData = FormData.SetupList(paramFile.ApiParam.FormData);
                 QueryData queryData = QueryData.SetupList(paramFile.ApiParam.QueryString);
 
-                TimeStamp = paramFile.ApiParam.Timestamp ?? "%s";
+                //TimeStamp = paramFile.ApiParam.Timestamp ?? "%s";
+                TimeStamp = paramFile.ApiParam.Timestamp;
+
                 Version = paramFile.ApiParam.Version ?? "1.0";
-                Nonce = paramFile.ApiParam.Nonce ?? "%s";
+
+                //Nonce = paramFile.ApiParam.Nonce ?? "%s";
+                Nonce = paramFile.ApiParam.Nonce;
+
                 AuthPrefix = paramFile.ApiParam.AuthPrefix;
                 AppId = paramFile.ApiParam.AppID;
                 TestId = paramFile.Id;

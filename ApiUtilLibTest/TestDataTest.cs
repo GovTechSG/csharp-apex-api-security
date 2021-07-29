@@ -1,9 +1,6 @@
 ﻿using ApiUtilLib;
 using NUnit.Framework;
 using System;
-//using System.Collections.Generic;
-//using System.Linq;
-//using Newtonsoft.Json.Serialization;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 
@@ -65,7 +62,6 @@ namespace ApexUtilLibTest
         {
             try
             {
-                //var test = jsonData;
                 SetDetaultParams(testData);
 
                 if (!SkipTest)
@@ -132,8 +128,19 @@ namespace ApexUtilLibTest
                     };
                     string result = ApiAuthorization.TokenV2(authParam).Token;
 
-                    if (TimeStamp.Equals("%s") || Nonce.Equals("%s"))
+                    var expectedResult = ExpectedResult;
+                    if (string.IsNullOrEmpty(TimeStamp) || string.IsNullOrEmpty(Nonce))
                     {
+                        if (string.IsNullOrEmpty(TimeStamp))
+                        {
+                            expectedResult = expectedResult.Replace("timestamp=\"%s\"", "timestamp=\"" + authParam.timestamp + "\"");
+                        }
+
+                        if (string.IsNullOrEmpty(Nonce))
+                        {
+                            expectedResult = expectedResult.Replace("nonce=\"%s\"", "nonce=\"" + authParam.nonce + "\"");
+                        }
+
                         Match m = Regex.Match(result, "apex_(l[12])_([ei]g)_signature=(\\S+)", RegexOptions.IgnoreCase);
                         string signature_value = "";
                         if (m.Success)
@@ -141,10 +148,10 @@ namespace ApexUtilLibTest
                             signature_value = m.Groups[3].Value;
                         }
 
-                        ExpectedResult = ExpectedResult.Replace("signature=\"%s\"", "signature=" + signature_value);
+                        expectedResult = expectedResult.Replace("signature=\"%s\"", "signature=" + signature_value);
                     }
 
-                    Assert.AreEqual(ExpectedResult, result, "{0} - {1}", testData.Id, testData.Description);
+                    Assert.AreEqual(expectedResult, result, "{0} - {1}", testData.Id, testData.Description);
                 }
                 catch (Exception ex)
                 {
@@ -207,7 +214,7 @@ namespace ApexUtilLibTest
                 }
                 catch (Exception ex)
                 {
-                    // remove the file path that is machine dependent.
+                    // remove the file path that is machine in error message.
                     string err = ex.Message.Replace(testCertPath, "");
 
                     Assert.AreEqual(ExpectedResult, err, "{0} - {1}", testData.Id, testData.Description);

@@ -1,5 +1,4 @@
-﻿//using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 namespace ApexUtilLibTest
 {
     public class TestParam
@@ -69,10 +68,4 @@ namespace ApexUtilLibTest
         public Dictionary<object, object> FormData { get; set; }
 
     }   
-
-    //public class ExpectedResult
-    //{
-    //    public string golang { get; set; }
-    //    public string nodejs { get; set; }
-    //}
 }
