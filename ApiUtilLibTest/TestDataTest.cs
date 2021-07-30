@@ -205,7 +205,14 @@ namespace ApexUtilLibTest
 
                     if (!certName.IsNullOrEmpty())
                     {
-                        privateKey = ApiAuthorization.GetPrivateKey(PrivateKeyFileType.PEM_PKCS1, privateCertPath, Passphrase);
+                        if (certName.EndsWith(".pkcs8.key"))
+                        {
+                            privateKey = ApiAuthorization.GetPrivateKey(PrivateKeyFileType.PEM_PKCS8, privateCertPath, Passphrase);
+                        }
+                        else
+                        {
+                            privateKey = ApiAuthorization.GetPrivateKey(PrivateKeyFileType.PEM_PKCS1, privateCertPath, Passphrase);
+                        }
                     }
 
                     string result = message.L2Signature(privateKey);

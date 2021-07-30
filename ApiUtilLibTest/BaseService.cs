@@ -19,8 +19,8 @@ namespace ApexUtilLibTest
         internal static string apexTestSuitePath = "https://github.com/GovTechSG/test-suites-apex-api-security/zipball/development/";
 
         internal static bool IsDataFileDownloaded = false;
-        internal static string testDataPath = GetLocalPath("temp/GovTechSG-test-suites-apex-api-security-a922287/testData/");
-        internal static string testCertPath = GetLocalPath("temp/GovTechSG-test-suites-apex-api-security-a922287/");
+        internal static string testDataPath = GetLocalPath("temp/GovTechSG-test-suites-apex-api-security-2b397cc/testData/");
+        internal static string testCertPath = GetLocalPath("temp/GovTechSG-test-suites-apex-api-security-2b397cc/");
 
         internal SignatureMethod SignatureMethod { get; set; }
         internal HttpMethod HttpMethod { get; set; }
