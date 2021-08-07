@@ -6,6 +6,7 @@ using System.IO.Compression;
 using System.Reflection;
 using System.Linq;
 using Newtonsoft.Json;
+using NUnit.Framework;
 
 namespace ApexUtilLibTest
 {
@@ -17,6 +18,8 @@ namespace ApexUtilLibTest
         // for APEX2
         //internal static string apexTestSuitePath = "https://github.com/GovTechSG/test-suites-apex-api-security/zipball/master/";
         internal static string apexTestSuitePath = "https://github.com/GovTechSG/test-suites-apex-api-security/zipball/development/";
+
+        internal static bool IsDebug = true;
 
         internal static bool IsDataFileDownloaded = false;
         internal static string testDataPath = GetLocalPath("temp/GovTechSG-test-suites-apex-api-security-2b397cc/testData/");
@@ -52,12 +55,12 @@ namespace ApexUtilLibTest
             return Path.Combine(Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath), relativeFileName.Replace('/', Path.DirectorySeparatorChar));
         }
 
-        public static void BaseSetUp()
-        {
-            DownloadFile(apexTestSuitePath, GetLocalPath("testSuite.zip"));
-        }
+        //public static void BaseSetUp()
+        //{
+        //    DownloadFile(apexTestSuitePath, GetLocalPath("testSuite.zip"));
+        //}
 
-        internal static void DownloadFile(string sourceURL, string downloadPath)
+        internal static string DownloadFile(string sourceURL, string downloadPath)
         {
             try
             {
@@ -101,9 +104,7 @@ namespace ApexUtilLibTest
                 DirectoryInfo[] dir = dictiontory.GetDirectories();// this get all subfolder //name in folder NetOffice.
                 string dirName = dir[0].Name; //var dirName get name from array Dir;
 
-                // set the path to test data files
-                testDataPath = GetLocalPath(string.Format("temp/{0}/testData/", dirName));
-                testCertPath = GetLocalPath(string.Format("temp/{0}/", dirName));
+                return dirName;
             }
             catch (Exception ex)
             {
@@ -115,50 +116,54 @@ namespace ApexUtilLibTest
         {
             try
             {
-                SignatureMethod = paramFile.ApiParam.SignatureMethod.ParseSignatureMethod(paramFile.ApiParam.Secret);
-                HttpMethod = paramFile.ApiParam.HttpMethod.ToEnum<HttpMethod>();
-
-                // queryString and formData must be saperated
-                FormData = FormData.SetupList(paramFile.ApiParam.FormData);
-                QueryData queryData = QueryData.SetupList(paramFile.ApiParam.QueryString);
-
-                //TimeStamp = paramFile.ApiParam.Timestamp ?? "%s";
-                TimeStamp = paramFile.ApiParam.Timestamp;
-
-                Version = paramFile.ApiParam.Version ?? "1.0";
-
-                //Nonce = paramFile.ApiParam.Nonce ?? "%s";
-                Nonce = paramFile.ApiParam.Nonce;
-
-                AuthPrefix = paramFile.ApiParam.AuthPrefix;
-                AppId = paramFile.ApiParam.AppID;
-                TestId = paramFile.Id;
-
-                // combine queryString with URL
-                string queryString = "";
-                if (!paramFile.ApiParam.SignatureURL.IsNullOrEmpty())
+                if (paramFile.ApiParam != null)
                 {
-                    queryString = queryData.ToString();
-                    if (!queryString.IsNullOrEmpty())
+                    SignatureMethod = paramFile.ApiParam.SignatureMethod.ParseSignatureMethod(paramFile.ApiParam.Secret);
+                    HttpMethod = paramFile.ApiParam.HttpMethod.ToEnum<HttpMethod>();
+
+                    // queryString and formData must be saperated
+                    FormData = FormData.SetupList(paramFile.ApiParam.FormData);
+                    QueryData queryData = QueryData.SetupList(paramFile.ApiParam.QueryString);
+
+                    //TimeStamp = paramFile.ApiParam.Timestamp ?? "%s";
+                    TimeStamp = paramFile.ApiParam.Timestamp;
+
+                    Version = paramFile.ApiParam.Version ?? "1.0";
+
+                    //Nonce = paramFile.ApiParam.Nonce ?? "%s";
+                    Nonce = paramFile.ApiParam.Nonce;
+
+                    AuthPrefix = paramFile.ApiParam.AuthPrefix;
+                    AppId = paramFile.ApiParam.AppID;
+
+                    // combine queryString with URL
+                    string queryString = "";
+                    if (!paramFile.ApiParam.SignatureURL.IsNullOrEmpty())
                     {
-                        // query start with ?, replace ? with & when url already contain queryString
-                        if (paramFile.ApiParam.SignatureURL.IndexOf('?') > -1)
+                        queryString = queryData.ToString();
+                        if (!queryString.IsNullOrEmpty())
                         {
-                            queryString = queryString.Replace("?", "&");
+                            // query start with ?, replace ? with & when url already contain queryString
+                            if (paramFile.ApiParam.SignatureURL.IndexOf('?') > -1)
+                            {
+                                queryString = queryString.Replace("?", "&");
+                            }
                         }
                     }
+                    SignatureURL = paramFile.ApiParam.SignatureURL.IsNullOrEmpty() ? null : new Uri(string.Format("{0}{1}", paramFile.ApiParam.SignatureURL, queryString));
+
+                    InvokeUrl = paramFile.ApiParam.InvokeURL.IsNullOrEmpty() ? null : new Uri(paramFile.ApiParam.InvokeURL);
+                    Secret = paramFile.ApiParam.Secret ?? null;
+                    Realm = paramFile.ApiParam.Realm ?? null;
+                    Passphrase = paramFile.ApiParam.Passphrase ?? paramFile.Passphrase;// ?? "passwordp12";
                 }
-                SignatureURL = paramFile.ApiParam.SignatureURL.IsNullOrEmpty() ? null : new Uri(string.Format("{0}{1}", paramFile.ApiParam.SignatureURL, queryString));
-                
+
+                TestId = paramFile.Id;
                 ExpectedResult = CommonExtensions.GetCharp(paramFile.ExpectedResult);
                 ErrorTest = paramFile.ErrorTest;
 
                 SkipTest = paramFile.SkipTest == null ? false : paramFile.SkipTest.Contains("c#");
 
-                InvokeUrl = paramFile.ApiParam.InvokeURL.IsNullOrEmpty() ? null : new Uri(paramFile.ApiParam.InvokeURL);
-                Secret = paramFile.ApiParam.Secret ?? null;
-                Realm = paramFile.ApiParam.Realm ?? null;
-                Passphrase = paramFile.ApiParam.Passphrase ?? paramFile.Passphrase;// ?? "passwordp12";
             }
             catch (Exception ex)
             {
@@ -170,7 +175,22 @@ namespace ApexUtilLibTest
         {
             if (!IsDataFileDownloaded)
             {
-                BaseSetUp();
+                if (IsDebug)
+                {
+                    var folderName = "linkFolder";
+
+                    // set the path to test data files
+                    testDataPath = GetLocalPath($"{folderName}/testData/");
+                    testCertPath = GetLocalPath($"{folderName}/");
+                }
+                else
+                {
+                    var folderName = DownloadFile(apexTestSuitePath, GetLocalPath("testSuite.zip"));
+
+                    // set the path to test data files
+                    testDataPath = GetLocalPath($"temp/{folderName}/testData/");
+                    testCertPath = GetLocalPath($"temp/{folderName}/");
+                }
                 IsDataFileDownloaded = true;
             }
 
@@ -191,6 +211,15 @@ namespace ApexUtilLibTest
             {
                 throw ex;
             }
+        }
+
+        internal static void ValidateErrorMessage(TestParam testCase, Exception ex)
+        {
+            // remove the file path that is machine dependent.
+            //string path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + $"/{testCertPath}/";
+            string err = ex.Message.Replace(testCertPath, "");
+
+            Assert.AreEqual(testCase.Result, err, "{0} - {1}", testCase.Id, testCase.Description);
         }
     }
 }

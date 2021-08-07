@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+
 namespace ApexUtilLibTest
 {
     public class TestParam
@@ -10,6 +12,7 @@ namespace ApexUtilLibTest
         public APIParam ApiParam { get; set; }
 
         public string PublicCertFileName { get; set; }
+        public string PublicKeyFileName { get; set; }
 
         public string Passphrase { get; set; }
 
@@ -23,7 +26,23 @@ namespace ApexUtilLibTest
 
         public bool ErrorTest { get; set; }
 
+        public Dictionary<string, string> ExceptionType { get; set; }
+        public string Exception => ExceptionType != null ? ExceptionType.FirstOrDefault(c => c.Key == "c#").Value ?? ExceptionType.FirstOrDefault(c => c.Key == "default").Value : "";
+
         public Dictionary<string, string> ExpectedResult { get; set; }
+        public string Result
+        {
+            get
+            {
+                string result = ExpectedResult.FirstOrDefault(c => c.Key == "c#").Value;
+                if (result == null)
+                {
+                    result = ExpectedResult.FirstOrDefault(c => c.Key == "default").Value;
+                }
+
+                return result;
+            }
+        }
 
         public override string ToString()
         {
@@ -50,9 +69,10 @@ namespace ApexUtilLibTest
         public string Signature { get; set; }
 
         public string PrivateCertFileName { get; set; }
-
         public string PrivateCertFileNameP12 { get; set; }
 
+
+        public string PrivateKeyFileName { get; set; }
         public string Passphrase { get; set; }
 
         public string SignatureMethod { get; set; }
