@@ -55,11 +55,6 @@ namespace ApexUtilLibTest
             return Path.Combine(Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath), relativeFileName.Replace('/', Path.DirectorySeparatorChar));
         }
 
-        //public static void BaseSetUp()
-        //{
-        //    DownloadFile(apexTestSuitePath, GetLocalPath("testSuite.zip"));
-        //}
-
         internal static string DownloadFile(string sourceURL, string downloadPath)
         {
             try
