@@ -211,7 +211,6 @@ namespace ApexUtilLibTest
         internal static void ValidateErrorMessage(TestParam testCase, Exception ex)
         {
             // remove the file path that is machine dependent.
-            //string path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + $"/{testCertPath}/";
             string err = ex.Message.Replace(testCertPath, "");
 
             Assert.AreEqual(testCase.Result, err, "{0} - {1}", testCase.Id, testCase.Description);
