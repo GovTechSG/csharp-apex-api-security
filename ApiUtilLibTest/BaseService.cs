@@ -36,7 +36,10 @@ namespace ApexUtilLibTest
         internal string TestId { get; set; }
         internal string AppId { get; set; }
         internal Uri SignatureURL { get; set; }
+
         internal string ExpectedResult { get; set; }
+        public bool ResultBool => ExpectedResult == "true";
+
         internal bool ErrorTest { get; set; }
 
         internal bool SkipTest { get; set; }

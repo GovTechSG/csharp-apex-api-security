@@ -11,12 +11,14 @@ namespace ApexUtilLibTest
 
         public APIParam ApiParam { get; set; }
 
-        public string PublicCertFileName { get; set; }
-        public string PublicKeyFileName { get; set; }
+        //public string PublicCertFileName { get; set; }
 
+        public string PublicKeyFileName { get; set; }
         public string Passphrase { get; set; }
 
         public string[] SkipTest { get; set; }
+        internal bool Skip => SkipTest != null && SkipTest.Contains("c#");
+
 
         public string Message { get; set; }
 
@@ -46,7 +48,8 @@ namespace ApexUtilLibTest
 
         public override string ToString()
         {
-            return $"{Id} - {Description}";
+
+            return Skip ? $"{Id} - {Description}   >>> {Result} <<<" : $"{Id} - {Description}";
         }
     }
 
@@ -68,9 +71,8 @@ namespace ApexUtilLibTest
 
         public string Signature { get; set; }
 
-        public string PrivateCertFileName { get; set; }
-        public string PrivateCertFileNameP12 { get; set; }
-
+        //public string PrivateCertFileName { get; set; }
+        //public string PrivateCertFileNameP12 { get; set; }
 
         public string PrivateKeyFileName { get; set; }
         public string Passphrase { get; set; }

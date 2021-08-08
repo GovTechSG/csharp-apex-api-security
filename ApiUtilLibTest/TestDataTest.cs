@@ -70,23 +70,24 @@ namespace ApexUtilLibTest
 
                     string message = testData.Message;
                     string signature = testData.ApiParam.Signature;
-                    string certPath = testCertPath + testData.PublicCertFileName;
+                    string certPath = testCertPath + testData.PublicKeyFileName;
 
-                    PublicKeyFileType fileType = PublicKeyFileType.CERTIFICATE;
-                    if (testData.PublicCertFileName.ToLower().EndsWith(".key"))
-                    {
-                        fileType = PublicKeyFileType.PUBLIC_KEY;
-                    }
-                    if (testData.PublicCertFileName.ToLower().EndsWith(".p12") || testData.PublicCertFileName.ToLower().EndsWith(".pfx"))
-                    {
-                        fileType = PublicKeyFileType.P12_OR_PFX;
-                    }
+                    //PublicKeyFileType fileType = PublicKeyFileType.CERTIFICATE;
+                    //if (testData.PublicKeyFileName.ToLower().EndsWith(".key"))
+                    //{
+                    //    fileType = PublicKeyFileType.PUBLIC_KEY;
+                    //}
+                    //if (testData.PublicKeyFileName.ToLower().EndsWith(".p12") || testData.PublicKeyFileName.ToLower().EndsWith(".pfx"))
+                    //{
+                    //    fileType = PublicKeyFileType.P12_OR_PFX;
+                    //}
 
-                    RSACryptoServiceProvider publicKey = ApiAuthorization.GetPublicKey(certPath, fileType, Passphrase);
+                    //RSACryptoServiceProvider publicKey = ApiAuthorization.GetPublicKey(certPath, fileType, Passphrase);
+                    RSACryptoServiceProvider publicKey = ApiAuthorization.GetPublicKey(certPath, GetPublicKeyFileType(certPath), Passphrase);
 
                     bool result = signature.VerifyL2Signature(publicKey, message);
 
-                    Assert.IsTrue(result, "{0} - {1}", testData.Id, testData.Description);
+                    Assert.AreEqual(ExpectedResult.ToBool(), result, "{0} - {1}", testData.Id, testData.Description);
                 }
                 else
                 {
@@ -108,12 +109,12 @@ namespace ApexUtilLibTest
             {
                 try
                 {
-                    string certName = testData.ApiParam.PrivateCertFileNameP12;
+                    string certName = testData.ApiParam.PrivateKeyFileName;
                     string privateCertPath = testCertPath + certName;
                     RSACryptoServiceProvider privateKey = null;
                     if (!certName.IsNullOrEmpty())
                     {
-                        privateKey = ApiAuthorization.GetPrivateKey(PrivateKeyFileType.P12_OR_PFX, GetLocalPath(privateCertPath), Passphrase);
+                        privateKey = ApiAuthorization.GetPrivateKey(GetPrivateKeyFileType(privateCertPath), GetLocalPath(privateCertPath), Passphrase);
                     }
 
                     AuthParam authParam = new AuthParam
@@ -199,21 +200,22 @@ namespace ApexUtilLibTest
                 try
                 {
                     string message = testData.Message;
-                    string certName = testData.ApiParam.PrivateCertFileName;
+                    string certName = testData.ApiParam.PrivateKeyFileName;
                     string privateCertPath = testCertPath + certName;
 
                     RSACryptoServiceProvider privateKey = null;
 
                     if (!certName.IsNullOrEmpty())
                     {
-                        if (certName.EndsWith(".pkcs8.key"))
-                        {
-                            privateKey = ApiAuthorization.GetPrivateKey(PrivateKeyFileType.PEM_PKCS8, privateCertPath, Passphrase);
-                        }
-                        else
-                        {
-                            privateKey = ApiAuthorization.GetPrivateKey(PrivateKeyFileType.PEM_PKCS1, privateCertPath, Passphrase);
-                        }
+                        //if (certName.EndsWith(".pkcs8.key"))
+                        //{
+                        //    privateKey = ApiAuthorization.GetPrivateKey(PrivateKeyFileType.PEM_PKCS8, privateCertPath, Passphrase);
+                        //}
+                        //else
+                        //{
+                        //    privateKey = ApiAuthorization.GetPrivateKey(PrivateKeyFileType.PEM_PKCS1, privateCertPath, Passphrase);
+                        //}
+                        privateKey = ApiAuthorization.GetPrivateKey(GetPrivateKeyFileType(privateCertPath), privateCertPath, Passphrase);
                     }
 
                     string result = message.L2Signature(privateKey);
