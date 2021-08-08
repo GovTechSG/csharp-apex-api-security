@@ -1,9 +1,10 @@
-﻿#!/bin/bash
+#!/bin/bash
+# Proper header for a Bash script.
 
 # dependency: must clone test-suites-apex-api-security
 #             at the save level as csharp-apex2-net5-skd
 
-CREATE_LINK=true
+CREATE_LINK=false
 
 cd bin/Debug
 mkdir -p linkFolder

@@ -5,14 +5,17 @@
 
 A C# helper utility that construct and sign HTTP Authorization header scheme for API authentication and verification
 
-## Table of Contents (version 2.0 - beta)
+## Table of Contents (version 2.0 - beta (2021-08-08 v2.0.1))
 - [Getting Started](#getting-started)
     * [Prerequisites](#prerequisites)
-    * [APIList Interface](#using-the-apilist-class)
+    * [Query String and FormData Class](#using-the-queryData-and-formData-class)
         + [Generate QueryString](#generate-querystring)
         + [Generate FormData](#generate-formdata)
-    * [Constructing HMAC256 L1 Authorization Header](#how-to-generate-hmac256-l1-authorization-header)
-    * [Constructing RSA256 L2 Authorization Header](#how-to-generate-rsa256-l2-authorization-header)
+    * [Constructing L1 Authorization Header](#how-to-generate-l1-authorization-header)
+    * [Supported Private Key File Type](#supported-private-key-file-type)
+    * [Constructing L2 Authorization Header](#how-to-generate-l2-authorization-header)
+    * [Cross Zone API from Internet to Intranet](*how-to-generate-l21-authorization-header)
+    * [Cross Zone API from Intranet to Internet](*how-to-generate-l12-authorization-header)
 - [Release](#release)
 - [Contributing](#contributing)
 - [License](#license)
@@ -74,7 +77,7 @@ The ApiUtilLib Library provide the utility class QueryData to construct request 
 For **formData** parameter used for Signature generation, the key value parameters **do not** need to be URL encoded, 
 When you use this client library method **ApiAuthorization.HttpRequest**, it will do the url-encoding during the HTTP call
 
-### How to Generate HMAC256 L1 Authorization Header
+### How to Generate L1 Authorization Header
 ```
 public void L1Sample()
 {
@@ -108,7 +111,12 @@ public void L1Sample()
 }
 ```
 
-### How to Generate RSA256 L2 Authorization Header
+### Supported Private Key File Type
+1. .pem/.key - pkcs#1 base64 encoded text file
+2. .pem/.key - pkcs#8 base64 encoded text file
+2. .p12/.pfx - pkcs#12 key store
+
+### How to Generate L2 Authorization Header
 ```
 public void L2Sample()
 {
@@ -118,7 +126,7 @@ public void L2Sample()
     var PRIVATE_KEY_PASSPHRASE = "{passphrase}";
 
     // get the private key from pem file (in pkcs1 format)
-    var privateKey = ApiAuthorization.GetPrivateKey(ApiUtilLib.PrivateKeyFileType.PEM_PKCS1, PRIVATE_KEY_FILE_NAME, PRIVATE_KEY_PASSPHRASE);
+    var privateKey = ApiAuthorization.GetPrivateKey(PRIVATE_KEY_FILE_NAME, PRIVATE_KEY_PASSPHRASE);
 
     // prepare queryString
     var queryData = new QueryData();
@@ -153,8 +161,8 @@ public void L2Sample()
     // make api call with authToken.Token
 }
 ```
-#### Sample L21 call for cross zone api from internet to intranet
-
+### How to Generate L21 Authorization Header
+(for cross zone api from internet to intranet)
 ```
 public void L21Sample()
 {
@@ -168,7 +176,7 @@ public void L21Sample()
     var APP_SECRET_WOG = "{wog_appSecret}";
 
     // get the private key from pem file (in pkcs1 format)
-    var privateKey = ApiAuthorization.GetPrivateKey(ApiUtilLib.PrivateKeyFileType.PEM_PKCS1, PRIVATE_KEY_FILE_NAME, PRIVATE_KEY_PASSPHRASE);
+    var privateKey = ApiAuthorization.GetPrivateKey(PRIVATE_KEY_FILE_NAME, PRIVATE_KEY_PASSPHRASE);
 
     // prepare queryString
     var queryData = new QueryData();
@@ -210,8 +218,9 @@ public void L21Sample()
 }
 
 ```
-#### Sample L12 call for cross zone api from intranet to internet
 
+### How to Generate L12 Authorization Header
+(for cross zone api from intranet to internet)
 ```
 public void L12Sample()
 {
@@ -225,7 +234,7 @@ public void L12Sample()
     var PRIVATE_KEY_PASSPHRASE = "{passphrase}";
 
     // get the private key from pem file (in pkcs8 format)
-    var privateKey = ApiAuthorization.GetPrivateKey(ApiUtilLib.PrivateKeyFileType.PEM_PKCS8, PRIVATE_KEY_FILE_NAME, PRIVATE_KEY_PASSPHRASE);
+    var privateKey = ApiAuthorization.GetPrivateKey(PRIVATE_KEY_FILE_NAME, PRIVATE_KEY_PASSPHRASE);
 
     // prepare queryString
     var queryData = new QueryData();

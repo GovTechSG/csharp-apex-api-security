@@ -19,7 +19,7 @@ namespace ApexUtilLibTest
         //internal static string apexTestSuitePath = "https://github.com/GovTechSG/test-suites-apex-api-security/zipball/master/";
         internal static string apexTestSuitePath = "https://github.com/GovTechSG/test-suites-apex-api-security/zipball/development/";
 
-        internal static bool IsDebug = true;
+        internal static bool IsDebug = false;
 
         internal static bool IsDataFileDownloaded = false;
         internal static string testDataPath = GetLocalPath("temp/GovTechSG-test-suites-apex-api-security-2b397cc/testData/");
