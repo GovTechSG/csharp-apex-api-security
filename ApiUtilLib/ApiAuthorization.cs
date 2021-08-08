@@ -97,123 +97,6 @@ namespace ApiUtilLib
             return base64Token;
         }
 
-        /// <summary>
-        /// Supported Fie Types:
-        ///     .PEM/.KEY - Private Key in pkcs1 format with Base64 Encoding, i.e. file start with
-        ///         -----BEGIN RSA PRIVATE KEY-----
-        ///     .PEM/.KEY - Private Key in pkcs8 format with Base64 Encoding, i.e. file start with
-        ///         -----BEGIN PRIVATE KEY-----
-        ///         -----BEGIN ENCRYPTED PRIVATE KEY-----
-        ///     .P12/PFX - Certificate Store in binary format with p12 or pfx Encoding, optional passPhrase supported
-        ///     Note:
-        ///         P12/PFX Certificate Store must conatin only one pair of public/private keys with store and key passphare must be the same
-        /// </summary>
-        /// <param name="fileType"></param>
-        /// <param name="keyFileName"></param>
-        /// <param name="passPhrase"></param>
-        /// <returns></returns>
-        public static RSACryptoServiceProvider GetPrivateKey(PrivateKeyFileType fileType, string keyFileName, string passPhrase = null)
-        {
-            Logger.LogEnterExit(LoggerBase.Args(keyFileName, "***password***"));
-
-            RSACryptoServiceProvider privateKey = null;
-
-            if (fileType == PrivateKeyFileType.P12_OR_PFX)
-            {
-                X509Certificate2 privateCert = new X509Certificate2(File.ReadAllBytes(keyFileName), passPhrase, X509KeyStorageFlags.Exportable);
-
-                RSACryptoServiceProvider OriginalPrivateKey = (RSACryptoServiceProvider)privateCert.PrivateKey;
-
-                if (Environment.OSVersion.Platform == PlatformID.MacOSX || Environment.OSVersion.Platform == PlatformID.Unix)
-                {
-                    privateKey = OriginalPrivateKey;
-                }
-                else
-                {
-                    privateKey = new RSACryptoServiceProvider();
-                    privateKey.ImportParameters(OriginalPrivateKey.ExportParameters(true));
-                }
-            }
-            if (fileType == PrivateKeyFileType.PEM_PKCS1 || fileType == PrivateKeyFileType.PEM_PKCS8)
-            {
-                RSAParameters rsaParams;
-
-                using (StreamReader reader = File.OpenText(keyFileName)) // file containing RSA PKCS8 private key
-                {
-                    if (fileType == PrivateKeyFileType.PEM_PKCS8)
-                    {
-                        RsaPrivateCrtKeyParameters keyPair_pkcs8;
-
-                        keyPair_pkcs8 = (RsaPrivateCrtKeyParameters)new PemReader(reader, new PasswordFinder(passPhrase)).ReadObject();
-                        rsaParams = DotNetUtilities.ToRSAParameters(keyPair_pkcs8);
-                    }
-                    else
-                    {
-                        AsymmetricCipherKeyPair keyPair_pkcs1;
-
-                        keyPair_pkcs1 = (AsymmetricCipherKeyPair)new PemReader(reader, new PasswordFinder(passPhrase)).ReadObject();
-                        rsaParams = DotNetUtilities.ToRSAParameters((RsaPrivateCrtKeyParameters)keyPair_pkcs1.Private);
-                    }
-                }
-
-                privateKey = new RSACryptoServiceProvider();
-                privateKey.ImportParameters(rsaParams);
-            }
-
-            return privateKey;
-        }
-
-        /// <summary>
-        /// Supported File Types:
-        ///     .PEM - Certificate in text format with Base64 Encoding
-        ///     .CER - Certificate in text format with Base64 Encoding
-        ///     .CER - Certificate in binary format with DER Encoding
-        ///     .DER - Certificate in binary format with DER Encoding
-        ///     .KEY - Public Key in text format with Base64 Encoding
-        ///     .P12/PFX - Certificate Store in binary format with p12 or pfx Encoding, optional passPhrase supported
-        ///     Note:
-        ///         P12/PFX Certificate Store must conatin only one pair of public/private key with store and key passphare must be the same
-        /// </summary>
-        /// <param name="fileName">File name for the supported file type</param>
-        /// <param name="fileType">supported file type</param>
-        /// <param name="passPhrase">store and key must used the same passPhrase</param>
-        /// <returns>Public Key as RSACryptoServiceProvider</returns>
-        public static RSACryptoServiceProvider GetPublicKey(string fileName, PublicKeyFileType fileType = PublicKeyFileType.CERTIFICATE, string passPhrase = null)
-        {
-            Logger.LogEnterExit(LoggerBase.Args(fileName));
-
-            RSACryptoServiceProvider key = null;
-
-            if (fileType == PublicKeyFileType.P12_OR_PFX)
-            {
-                X509Certificate2 cert = new X509Certificate2(File.ReadAllBytes(fileName), passPhrase, X509KeyStorageFlags.Exportable);
-
-                key = (RSACryptoServiceProvider)cert.PublicKey.Key;
-            }
-
-            if (fileType == PublicKeyFileType.CERTIFICATE)
-            {
-                X509Certificate2 cert = new X509Certificate2(File.ReadAllBytes(fileName));
-
-                key = (RSACryptoServiceProvider)cert.PublicKey.Key;
-            }
-
-            if (fileType == PublicKeyFileType.PUBLIC_KEY)
-            {
-                using (StreamReader reader = File.OpenText(fileName))
-                {
-                    PemReader pr = new PemReader(reader);
-                    AsymmetricKeyParameter publicKey = (AsymmetricKeyParameter)pr.ReadObject();
-
-                    RSAParameters rsaParams = DotNetUtilities.ToRSAParameters((RsaKeyParameters)publicKey);
-                    key = new RSACryptoServiceProvider();
-                    key.ImportParameters(rsaParams);
-                }
-            }
-
-            return key;
-        }
-
         public static bool VerifyL2Signature(this string signature, RSACryptoServiceProvider publicKey, string message)
         {
             Logger.LogEnter(LoggerBase.Args(signature, message, publicKey));
@@ -233,16 +116,140 @@ namespace ApiUtilLib
             return signatureValid;
         }
 
-        public static string BaseString(
-            string authPrefix
-            , SignatureMethod signatureMethod
-            , string appId
-            , Uri siteUri
-            , FormData formData
-            , HttpMethod httpMethod
-            , string nonce
-            , string timestamp
-            , string version)
+        public static RSACryptoServiceProvider GetPrivateKey(string keyFileName, string passPhrase = null)
+        {
+            Logger.LogEnterExit(LoggerBase.Args(keyFileName, "***password***"));
+
+            RSACryptoServiceProvider privateKey = null;
+
+            string fileExtension = Path.GetExtension(keyFileName).ToLower();
+
+            //if (fileType == PrivateKeyFileType.P12_OR_PFX)
+            switch (fileExtension)
+            {
+                case ".p12":
+                case ".pfx":
+                    {
+                        X509Certificate2 privateCert = new X509Certificate2(File.ReadAllBytes(keyFileName), passPhrase, X509KeyStorageFlags.Exportable);
+                        RSACryptoServiceProvider OriginalPrivateKey = (RSACryptoServiceProvider)privateCert.PrivateKey;
+
+                        if (Environment.OSVersion.Platform == PlatformID.MacOSX || Environment.OSVersion.Platform == PlatformID.Unix)
+                        {
+                            privateKey = OriginalPrivateKey;
+                        }
+                        else
+                        {
+                            privateKey = new RSACryptoServiceProvider();
+                            privateKey.ImportParameters(OriginalPrivateKey.ExportParameters(true));
+                        }
+
+                        break;
+                    }
+                //if (fileType == PrivateKeyFileType.PEM_PKCS1 || fileType == PrivateKeyFileType.PEM_PKCS8)
+                case ".pem":
+                case ".key":
+                    {
+                        RSAParameters rsaParams;
+
+                        bool isPkcs1 = false;
+                        string pemString = File.ReadAllText(keyFileName);
+                        if (pemString.StartsWith("-----BEGIN RSA PRIVATE KEY-----"))
+                        {
+                            isPkcs1 = true;
+                        }
+
+                        using (StreamReader reader = File.OpenText(keyFileName)) // file containing RSA PKCS8 private key
+                        {
+                            if (isPkcs1)
+                            {
+                                AsymmetricCipherKeyPair keyPair_pkcs1;
+
+                                keyPair_pkcs1 = (AsymmetricCipherKeyPair)new PemReader(reader, new PasswordFinder(passPhrase)).ReadObject();
+                                rsaParams = DotNetUtilities.ToRSAParameters((RsaPrivateCrtKeyParameters)keyPair_pkcs1.Private);
+                            }
+                            else
+                            {
+                                RsaPrivateCrtKeyParameters keyPair_pkcs8;
+
+                                keyPair_pkcs8 = (RsaPrivateCrtKeyParameters)new PemReader(reader, new PasswordFinder(passPhrase)).ReadObject();
+                                rsaParams = DotNetUtilities.ToRSAParameters(keyPair_pkcs8);
+                            }
+                        }
+
+                        privateKey = new RSACryptoServiceProvider();
+                        privateKey.ImportParameters(rsaParams);
+
+                        break;
+                    }
+                default:
+                    throw new CryptographicException("No supported key formats were found. Check that the file format are supported.");
+            }
+
+            return privateKey;
+        }
+
+        public static RSACryptoServiceProvider GetPublicKey(string keyFileName, string passPhrase = null)
+        {
+            Logger.LogEnterExit(LoggerBase.Args(keyFileName));
+
+            RSACryptoServiceProvider key = null;
+
+            string fileExtension = Path.GetExtension(keyFileName).ToLower();
+
+            // check if the file contain certificate?
+            // by default .pem file conatain key
+            if (fileExtension == ".pem")
+            {
+                string pemString = File.ReadAllText(keyFileName);
+                if (pemString.StartsWith("-----BEGIN CERTIFICATE-----"))
+                {
+                    // assume .pem as .cer
+                    fileExtension = ".cer";
+                }
+            }
+
+            switch (fileExtension)
+            {
+                case ".p12":
+                case ".pfx":
+                    //if (fileType == PublicKeyFileType.P12_OR_PFX)
+                    {
+                        X509Certificate2 cert = new X509Certificate2(File.ReadAllBytes(keyFileName), passPhrase, X509KeyStorageFlags.Exportable);
+                        key = (RSACryptoServiceProvider)cert.PublicKey.Key;
+                        break;
+                    }
+
+                //if (fileType == PublicKeyFileType.CERTIFICATE)
+                case ".cer":
+                    {
+                        X509Certificate2 cert = new X509Certificate2(File.ReadAllBytes(keyFileName));
+                        key = (RSACryptoServiceProvider)cert.PublicKey.Key;
+                        break;
+                    }
+
+                //if (fileType == PublicKeyFileType.PUBLIC_KEY)
+                case ".pem":
+                case ".key":
+                    {
+                        using (StreamReader reader = File.OpenText(keyFileName))
+                        {
+                            PemReader pr = new PemReader(reader);
+                            AsymmetricKeyParameter publicKey = (AsymmetricKeyParameter)pr.ReadObject();
+
+                            RSAParameters rsaParams = DotNetUtilities.ToRSAParameters((RsaKeyParameters)publicKey);
+                            key = new RSACryptoServiceProvider();
+                            key.ImportParameters(rsaParams);
+                        }
+                        break;
+                    }
+                default:
+                    throw new CryptographicException("No supported key formats were found. Check that the file format are supported.");
+            }
+
+            return key;
+        }
+
+        public static string BaseString(string authPrefix, SignatureMethod signatureMethod, string appId, Uri siteUri, FormData formData, HttpMethod httpMethod, string nonce, string timestamp, string version)
         {
             try
             {
