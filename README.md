@@ -3,19 +3,19 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 [![MIT License](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/GovTechSG/csharp-apex-api-security/blob/master/LICENSE)
 
-A C# helper utility that construct and sign HTTP Authorization header scheme for API authentication and verification
+A C# helper utility that construct and sign HTTP Authorization header scheme for API authentication and verification.
 
 ## Table of Contents (version 2.0 - beta (2021-08-08 v2.0.1))
 - [Getting Started](#getting-started)
     * [Prerequisites](#prerequisites)
-    * [Query String and FormData Class](#using-the-queryData-and-formData-class)
+    * [Query String and FormData Class](#using-the-querydata-and-formdata-class)
         + [Generate QueryString](#generate-querystring)
         + [Generate FormData](#generate-formdata)
     * [Constructing L1 Authorization Header](#how-to-generate-l1-authorization-header)
     * [Supported Private Key File Type](#supported-private-key-file-type)
     * [Constructing L2 Authorization Header](#how-to-generate-l2-authorization-header)
-    * [Cross Zone API from Internet to Intranet](*how-to-generate-l21-authorization-header)
-    * [Cross Zone API from Intranet to Internet](*how-to-generate-l12-authorization-header)
+    * [Cross Zone API from Internet to Intranet](#how-to-generate-l21-authorization-header)
+    * [Cross Zone API from Intranet to Internet](#how-to-generate-l12-authorization-header)
 - [Release](#release)
 - [Contributing](#contributing)
 - [License](#license)
@@ -114,7 +114,7 @@ public void L1Sample()
 ### Supported Private Key File Type
 1. .pem/.key - pkcs#1 base64 encoded text file
 2. .pem/.key - pkcs#8 base64 encoded text file
-2. .p12/.pfx - pkcs#12 key store
+3. .p12/.pfx - pkcs#12 key store
 
 ### How to Generate L2 Authorization Header
 ```
@@ -161,6 +161,7 @@ public void L2Sample()
     // make api call with authToken.Token
 }
 ```
+
 ### How to Generate L21 Authorization Header
 (for cross zone api from internet to intranet)
 ```
