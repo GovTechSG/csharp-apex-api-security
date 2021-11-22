@@ -5,7 +5,7 @@
 
 A C# helper utility that construct and sign HTTP Authorization header scheme for API authentication and verification.
 
-## Table of Contents (version 2.0 - beta (2021-08-08 v2.0.1))
+## Table of Contents
 - [Getting Started](#getting-started)
     * [Prerequisites](#prerequisites)
     * [Query String and FormData Class](#using-the-querydata-and-formdata-class)
