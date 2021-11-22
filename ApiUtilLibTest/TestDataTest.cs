@@ -1,9 +1,7 @@
 ﻿using ApiUtilLib;
 using NUnit.Framework;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using Newtonsoft.Json.Serialization;
+using System.IO;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 
@@ -12,285 +10,369 @@ namespace ApexUtilLibTest
     [TestFixture()]
     public class TestDataTest : BaseService
     {
-        [Test()]
-        public void TestBaseString()
+        [Test(), TestCaseSource(nameof(GetJsonFile), new object[] { "getSignatureBaseString.json" })]
+        public void TestBaseString(TestParam testCase)
         {
-            var jsonData = GetJsonFile("getSignatureBaseString.json");
-            int expectedPass = jsonData.Count();
-            int actualPass = 0;
+            SetDetaultParams(testCase);
 
-            try
+            if (SkipTest)
             {
-                foreach (var test in jsonData)
+                Assert.Ignore();
+            }
+            else
+            {
+                if (testCase.ErrorTest)
                 {
-                    SetDetaultParams(test);
-
-                    if (skipTest == null || !skipTest.Contains("c#"))
-                    {
-
-                        try
-                        {
-                            var baseString = ApiAuthorization.BaseString(authPrefix, signatureMethod, appId, signatureURL, httpMethod, apiList, nonce, timeStamp, version);
-                            Assert.AreEqual(expectedResult, baseString);
-                            actualPass++;
-                        }
-                        catch (Exception ex)
-                        {
-                            ex = ex;
-                        }
-                    }
-                    else
-                    {
-                        actualPass++;
-                    }
+                    Assert.Fail("No exception defined for test case...");
+                }
+                else
+                {
+                    string baseString = ApiAuthorization.BaseString(AuthPrefix, SignatureMethod, AppId, SignatureURL, FormData, HttpMethod, Nonce, TimeStamp, Version);
+                    Assert.AreEqual(ExpectedResult, baseString, testCase.ToString());
                 }
             }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-
-            Assert.AreEqual(expectedPass, actualPass);
-
         }
 
-        [Test()]
-        public void VerifyL1Signature()
+        [Test(), TestCaseSource(nameof(GetJsonFile), new object[] { "verifyL1Signature.json" })]
+        public void VerifyL1Signature(TestParam testCase)
         {
-            var jsonData = GetJsonFile("verifyL1Signature.json");
-            int expectedPass = jsonData.Count();
-            int actualPass = 0;
-
-            try
+            SetDetaultParams(testCase);
+            if (SkipTest)
             {
-                foreach (var test in jsonData)
+                Assert.Ignore();
+            }
+            else
+            {
+                if (testCase.ErrorTest)
                 {
-                    SetDetaultParams(test);
+                    Assert.Fail("No exception defined for test case...");
+                }
+                else
+                {
+                    string message = testCase.Message;
+                    string signature = testCase.ApiParam.Signature;
+                    bool result = signature.VerifyL1Signature(Secret, message);
 
-                    if (skipTest == null || !skipTest.Contains("c#"))
-                    {
-                        var message = test.message;
-                        var signature = test.apiParam.signature;
-                        var result = signature.VerifyL1Signature(secret,message);
-                        try
-                        {
-                            Assert.AreEqual(expectedResult.ToBool(),result);
-                            actualPass++;
-                        }
-                        catch (Exception)
-                        {
-                            if (expectedResult == "false")
-                                actualPass++;
-                        }
-                    }
-                    else
-                    {
-                        actualPass++;
-                    }
+                    Assert.AreEqual(ExpectedResult.ToBool(), result, testCase.ToString());
                 }
             }
-            catch (Exception)
-            {
-                throw;
-            }
-
-            Assert.AreEqual(expectedPass, actualPass);
         }
 
-        [Test()]
-        public void VerifyL2Signature()
+        [Test(), TestCaseSource(nameof(GetJsonFile), new object[] { "verifyL2Signature.json" })]
+        public void VerifyL2Signature(TestParam testCase)
         {
-            var jsonData = GetJsonFile("verifyL2Signature.json");
-            int expectedPass = jsonData.Count();
-            int actualPass = 0;
+            SetDetaultParams(testCase);
 
-            try
+            if (SkipTest)
             {
-                foreach (var test in jsonData)
+                Assert.Ignore();
+            }
+            else
+            {
+                if (testCase.ErrorTest)
                 {
-                    SetDetaultParams(test);
+                    Assert.Fail("No exception defined for test case...");
+                }
+                else
+                {
+                    string message = testCase.Message;
+                    string signature = testCase.ApiParam.Signature;
+                    string certPath = testCertPath + testCase.PublicKeyFileName;
 
-                    if (skipTest == null || !skipTest.Contains("c#"))
-                    {
+                    RSACryptoServiceProvider publicKey = ApiAuthorization.GetPublicKey(certPath, Passphrase);
+                    bool result = signature.VerifyL2Signature(publicKey, message);
 
-                        var message = test.message;
-                        var signature = test.apiParam.signature;
-                        string certPath = testCertPath + test.publicCertFileName;
-
-                        RSACryptoServiceProvider publicKey = ApiAuthorization.PublicKeyFromCer(certPath);
-
-                        var result = signature.VerifyL2Signature(publicKey, message);
-
-                        try
-                        {
-                            Assert.IsTrue(result);
-                            actualPass++;
-                        }
-                        catch (Exception)
-                        {
-                            if (expectedResult == "false")
-                                actualPass++;
-                        }
-                    }else{
-                        actualPass++;
-                    }
+                    Assert.AreEqual(ExpectedResult.ToBool(), result, testCase.ToString());
                 }
             }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-
-            Assert.AreEqual(expectedPass, actualPass);
         }
 
-        [Test()]
-        public void TestTokenSignature()
+        private Exception GetTokenException<T>(AuthParam authParam) where T : Exception
         {
-            var jsonData = GetJsonFile("getSignatureToken.json");
-            int expectedPass = jsonData.Count();
-            int actualPass = 0;
-            try
-            {
-                foreach (var test in jsonData)
-                {
-                    SetDetaultParams(test);
+            return Assert.Throws<T>(() => { string result = ApiAuthorization.TokenV2(authParam).Token; });
+        }
 
-                    if (skipTest == null || !skipTest.Contains("c#"))
+        [Test(), TestCaseSource(nameof(GetJsonFile), new object[] { "getSignatureToken.json" })]
+        public void GetToken(TestParam testCase)
+        {
+            SetDetaultParams(testCase);
+
+            if (SkipTest)
+            {
+                Assert.Ignore();
+            }
+            else
+            {
+                RSACryptoServiceProvider privateKey = null;
+                if (!testCase.ApiParam.PrivateKeyFileName.IsNullOrEmpty())
+                {
+                    privateKey = ApiAuthorization.GetPrivateKey(Path.Combine(testCertPath, testCase.ApiParam.PrivateKeyFileName), Passphrase);
+                }
+
+                AuthParam authParam = new AuthParam
+                {
+                    url = SignatureURL,
+                    httpMethod = HttpMethod,
+                    appName = AppId,
+                    appSecret = Secret,
+                    formData = FormData,
+                    privateKey = privateKey,
+                    timestamp = TimeStamp,
+                    nonce = Nonce
+                };
+
+                if (testCase.ErrorTest)
+                {
+                    //Assert.Fail("No exception defined for test case...");
+
+                    Exception ex;
+                    switch (testCase.Exception)
                     {
-                        try
-                        {
-                            string certName = test.apiParam.privateCertFileNameP12;
-                            string privateCertPath = testCertPath + certName;
-                            RSACryptoServiceProvider privateKey = null;
-                            if (!certName.IsNullOrEmpty())
-                                privateKey = ApiAuthorization.PrivateKeyFromP12(GetLocalPath(privateCertPath), passphrase);
-                            var result = ApiAuthorization.Token(realm, authPrefix, httpMethod, signatureURL, appId, secret, apiList, privateKey, nonce, timeStamp, version);
-                            if(timeStamp.Equals("%s") || nonce.Equals("%s"))
+                        case "ArgumentNullException":
                             {
-                                Match m = Regex.Match(result, "apex_(l[12])_([ei]g)_signature=(\\S+)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-                                String signature_value = "";
-                                if (m.Success)
-                                    signature_value = m.Groups[3].Value;
-
-                                expectedResult = expectedResult.Replace("signature=\"%s\"", "signature=" + signature_value);
+                                ex = GetTokenException<ArgumentNullException>(authParam);
+                                break;
                             }
-                            Assert.AreEqual(expectedResult, result);
-                            actualPass++;
-                        }
-                        catch (Exception ex)
-                        {
-                            Assert.AreEqual(expectedResult, ex.Message);
-                            if (errorTest)
-                                actualPass++;
-                        }
-                    }
-                    else
+                        default:
+                            {
+                                throw new Exception($"Exception ({testCase.Exception}) not defined in json, please update the test case.");
+                            }
+                    };
+                    ValidateErrorMessage(testCase, ex);
+                }
+                else
+                {
+                    string result = ApiAuthorization.TokenV2(authParam).Token;
+
+                    var expectedResult = ExpectedResult;
+                    if (string.IsNullOrEmpty(TimeStamp) || string.IsNullOrEmpty(Nonce))
                     {
-                        actualPass++;
+                        if (string.IsNullOrEmpty(TimeStamp))
+                        {
+                            expectedResult = expectedResult.Replace("timestamp=\"%s\"", "timestamp=\"" + authParam.timestamp + "\"");
+                        }
+
+                        if (string.IsNullOrEmpty(Nonce))
+                        {
+                            expectedResult = expectedResult.Replace("nonce=\"%s\"", "nonce=\"" + authParam.nonce + "\"");
+                        }
+
+                        Match m = Regex.Match(result, "apex_(l[12])_([ei]g)_signature=(\\S+)", RegexOptions.IgnoreCase);
+                        string signature_value = "";
+                        if (m.Success)
+                        {
+                            signature_value = m.Groups[3].Value;
+                        }
+
+                        expectedResult = expectedResult.Replace("signature=\"%s\"", "signature=" + signature_value);
                     }
+
+                    Assert.AreEqual(expectedResult, result, testCase.ToString());
                 }
             }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-
-            Assert.AreEqual(expectedPass, actualPass);
         }
 
-        [Test()]
-        public void GetL1Signature()
+        private Exception GetL1SignatureException<T>(TestParam testCase) where T : Exception
         {
-            var jsonData = GetJsonFile("getL1Signature.json");
-            int expectedPass = jsonData.Count();
-            int actualPass = 0;
-
-            try
-            {
-                foreach (var test in jsonData)
-                {
-                    SetDetaultParams(test);
-
-                    if (skipTest == null || !skipTest.Contains("c#"))
-                    {
-                        var message = test.message;
-                        try
-                        {
-                            var result = message.L1Signature(secret);
-                            Assert.AreEqual(expectedResult, result);
-                            actualPass++;
-                        }
-                        catch (Exception ex)
-                        {
-                            Assert.AreEqual(expectedResult, ex.Message);
-                            if (errorTest)
-                                actualPass++;
-                        }
-                    }
-                    else
-                    {
-                        actualPass++;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-
-            Assert.AreEqual(expectedPass, actualPass);
-
+            return Assert.Throws<T>(() => testCase.Message.L1Signature(testCase.ApiParam.Secret));
         }
 
-        [Test()]
-        public void GetL2Signature()
+        [Test(), TestCaseSource(nameof(GetJsonFile), new object[] { "getL1Signature.json" })]
+        public void GetL1Signature(TestParam testCase)
         {
-            var jsonData = GetJsonFile("getL2Signature.json");
-            int expectedPass = jsonData.Count();
-            int actualPass = 0;
-
-            try
+            SetDetaultParams(testCase);
+            if (SkipTest)
             {
-                foreach (var test in jsonData)
+                Assert.Ignore();
+            }
+            else
+            {
+                if (testCase.ErrorTest)
                 {
-                    SetDetaultParams(test);
+                    //Assert.Fail("No exception defined for test case...");
 
-                    if (skipTest == null || !skipTest.Contains("c#"))
+                    Exception ex;
+                    switch(testCase.Exception)
                     {
-                        try
-                        {
-                            var message = test.message;
-                            string certName = test.apiParam.privateCertFileName;
-                            string privateCertPath = testCertPath + certName;
-
-                            string result = null;
-                            if (!certName.IsNullOrEmpty())
-                              result = ApiAuthorization.GetL2SignatureFromPEM(privateCertPath,message, passphrase);
-
-                            Assert.AreEqual(expectedResult, result);
-                            actualPass++;
-                        }
-                        catch (Exception ex)
-                        {
-                            Assert.AreEqual(expectedResult, ex.Message);
-                            if (errorTest)
-                                actualPass++;
-                        }
-                    }
-                    else
-                    {
-                        actualPass++;
-                    }
+                        case "ArgumentException":
+                            {
+                                ex = GetL1SignatureException<ArgumentException>(testCase);
+                                break;
+                            }
+                        case "ArgumentNullException":
+                            {
+                                ex = GetL1SignatureException<ArgumentNullException>(testCase);
+                                break;
+                            }
+                        default:
+                            {
+                                throw new Exception($"Exception ({testCase.Exception}) not defined in json, please update the test case.");
+                            }
+                    };
+                    ValidateErrorMessage(testCase, ex);
+                }
+                else
+                {
+                    string message = testCase.Message;
+                    string result = message.L1Signature(Secret);
+                    Assert.AreEqual(ExpectedResult, result, testCase.ToString());
                 }
             }
-            catch (Exception ex)
+        }
+
+        private Exception GetL2SignatureException<T>(TestParam testCase, RSACryptoServiceProvider privateKey) where T : Exception
+        {
+            return Assert.Throws<T>(() => testCase.Message.L2Signature(privateKey));
+        }
+
+        [Test(), TestCaseSource(nameof(GetJsonFile), new object[] { "getL2Signature.json" })]
+        public void GetL2Signature(TestParam testCase)
+        {
+            SetDetaultParams(testCase);
+
+            if (SkipTest)
             {
-                throw ex;
+                Assert.Ignore();
             }
+            else
+            {
+                RSACryptoServiceProvider privateKey = null;
+                if (!testCase.ApiParam.PrivateKeyFileName.IsNullOrEmpty())
+                {
+                    privateKey = ApiAuthorization.GetPrivateKey(Path.Combine(testCertPath, testCase.ApiParam.PrivateKeyFileName), Passphrase);
+                }
 
-            Assert.AreEqual(expectedPass, actualPass);
+                if (testCase.ErrorTest)
+                {
+                    //Assert.Fail("No exception defined for test case...");
 
+                    Exception ex;
+                    switch (testCase.Exception)
+                    {
+                        case "ArgumentException":
+                            {
+                                ex = GetL2SignatureException<ArgumentException>(testCase, privateKey);
+                                break;
+                            }
+                        case "ArgumentNullException":
+                            {
+                                ex = GetL2SignatureException<ArgumentNullException>(testCase, privateKey);
+                                break;
+                            }
+                        default:
+                            {
+                                throw new Exception($"Exception ({testCase.Exception}) not defined in json, please update the test case.");
+                            }
+                    };
+                    ValidateErrorMessage(testCase, ex);
+                }
+                else
+                {
+                    string result = testCase.Message.L2Signature(privateKey);
+
+                    Assert.AreEqual(ExpectedResult, result, testCase.ToString());
+                }
+            }
+        }
+
+        private Exception GetPrivateKeyException<T>(string keyFileName, string passphrase) where T : Exception
+        {
+            return Assert.Throws<T>(() => ApiAuthorization.GetPrivateKey(keyFileName, passphrase));
+        }
+
+        private Exception GetPublicKeyException<T>(string keyFileName, string passphrase) where T : Exception
+        {
+            return Assert.Throws<T>(() => ApiAuthorization.GetPublicKey(keyFileName, passphrase));
+        }
+
+        [Test, TestCaseSource(nameof(GetJsonFile), new object[] { "verifySupportedKeyFileType.json" })]
+        public void VerifySupportedKeyFileType(TestParam testCase)
+        {
+            SetDetaultParams(testCase);
+
+            if (SkipTest)
+            {
+                Assert.Ignore();
+            }
+            else
+            {
+                if (testCase.ErrorTest)
+                {
+                    Exception ex = null;
+                    if (testCase.ApiParam != null && testCase.ApiParam.PrivateKeyFileName != null)
+                    {
+                        string keyFileName = $"{testCertPath}/{testCase.ApiParam.PrivateKeyFileName}";
+                        string passphrase = testCase.ApiParam.Passphrase;
+
+                        switch (testCase.Exception)
+                        {
+                            case "ArgumentException":
+                                {
+                                    ex = GetPrivateKeyException<ArgumentException>(keyFileName, passphrase);
+                                    break;
+                                }
+                            case "CryptographicException":
+                                {
+                                    ex = GetPrivateKeyException<CryptographicException>(keyFileName, passphrase);
+                                    break;
+                                }
+                            case "FileNotFoundException":
+                                {
+                                    ex = GetPrivateKeyException<FileNotFoundException>(keyFileName, passphrase);
+                                    break;
+                                }
+                            case "PemException":
+                                {
+                                    ex = GetPrivateKeyException<Org.BouncyCastle.OpenSsl.PemException>(keyFileName, passphrase);
+                                    break;
+                                }
+                            case "InvalidCastException":
+                                {
+                                    ex = GetPrivateKeyException<InvalidCastException>(keyFileName, passphrase);
+                                    break;
+                                }
+                            default:
+                                throw new Exception($"Exception ({testCase.Exception}) not defined in json, please update the test case.");
+                        }
+                        ValidateErrorMessage(testCase, ex);
+                    }
+
+                    if (testCase.PublicKeyFileName != null)
+                    {
+                        string keyFileName = $"{testCertPath}/{testCase.PublicKeyFileName}";
+                        string passphrase = testCase.Passphrase;
+
+                        switch (testCase.Exception)
+                        {
+                            case "FileNotFoundException":
+                                {
+                                    ex = GetPublicKeyException<FileNotFoundException>(keyFileName, passphrase);
+                                    break;
+                                }
+                            case "CryptographicException":
+                                {
+                                    ex = GetPublicKeyException<CryptographicException>(keyFileName, passphrase);
+                                    break;
+                                }
+                            default:
+                                throw new Exception($"Exception ({testCase.Exception}) not defined in json, please update the test case.");
+                        };
+                    }
+
+                    ValidateErrorMessage(testCase, ex);
+                }
+                else
+                {
+                    RSACryptoServiceProvider privateKey = ApiAuthorization.GetPrivateKey($"{testCertPath}/{testCase.ApiParam.PrivateKeyFileName}", testCase.ApiParam.Passphrase);
+                    string signature = testCase.Message.L2Signature(privateKey);
+
+                    RSACryptoServiceProvider publicKey = ApiAuthorization.GetPublicKey($"{testCertPath}/{testCase.PublicKeyFileName}", testCase.Passphrase);
+                    bool result = signature.VerifyL2Signature(publicKey, testCase.Message);
+
+                    Assert.AreEqual(testCase.ApiParam.Signature, signature, "Signature - {0} - {1}", testCase.Id, testCase.Description);
+                    Assert.IsTrue(result, "{0} - {1}", testCase.Id, testCase.Description);
+                }
+            }
         }
     }
 }

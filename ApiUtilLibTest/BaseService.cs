@@ -1,52 +1,64 @@
-﻿using ApexUtilLib;
-using ApiUtilLib;
+﻿using ApiUtilLib;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Security.Cryptography;
-using System.Text;
 using System.IO.Compression;
 using System.Reflection;
+using System.Linq;
+using Newtonsoft.Json;
+using NUnit.Framework;
 
 namespace ApexUtilLibTest
 {
     public class BaseService
     {
-        internal string apexTestSuitePath = "https://github.com/GovTechSG/test-suites-apex-api-security/archive/master.zip";
-        internal string testDataPath = GetLocalPath("temp/test-suites-apex-api-security-master/testData/");
-        internal string testCertPath = GetLocalPath("temp/test-suites-apex-api-security-master/");
+        // APEX 1
+        //internal static string apexTestSuitePath = "https://github.com/GovTechSG/test-suites-apex-api-security/archive/master.zip";
 
-        internal ApiUtilLib.SignatureMethod signatureMethod { get; set; }
-        internal ApiUtilLib.HttpMethod httpMethod { get; set; }
-        internal ApiList apiList { get; set; }
-        internal string timeStamp { get; set; }
-        internal string version { get; set; }
-        internal string nonce { get; set; }
-        internal string authPrefix { get; set; }
-        internal string testId { get; set; }
-        internal string appId { get; set; }
-        internal Uri signatureURL { get; set; }
-        internal string expectedResult { get; set; }
-        internal bool errorTest { get; set; }
-        internal string[] skipTest { get; set; }
-        internal string realm { get; set; }
-        internal Uri invokeUrl { get; set; }
-        internal string secret { get; set; }
-        internal string passphrase { get; set; }
+        // for APEX2
+        //internal static string apexTestSuitePath = "https://github.com/GovTechSG/test-suites-apex-api-security/zipball/master/";
+        internal static string apexTestSuitePath = "https://github.com/GovTechSG/test-suites-apex-api-security/zipball/development/";
+
+        internal static bool IsDebug = false;
+
+        internal static bool IsDataFileDownloaded = false;
+        internal static string testDataPath = GetLocalPath("temp/GovTechSG-test-suites-apex-api-security-2b397cc/testData/");
+        internal static string testCertPath = GetLocalPath("temp/GovTechSG-test-suites-apex-api-security-2b397cc/");
+
+        internal SignatureMethod SignatureMethod { get; set; }
+        internal HttpMethod HttpMethod { get; set; }
+
+        internal FormData FormData { get; set; }
+        internal string TimeStamp { get; set; }
+        internal string Version { get; set; }
+        internal string Nonce { get; set; }
+        internal string AuthPrefix { get; set; }
+        internal string TestId { get; set; }
+        internal string AppId { get; set; }
+        internal Uri SignatureURL { get; set; }
+
+        internal string ExpectedResult { get; set; }
+        public bool ResultBool => ExpectedResult == "true";
+
+        internal bool ErrorTest { get; set; }
+
+        internal bool SkipTest { get; set; }
+
+        internal string Realm { get; set; }
+        internal Uri InvokeUrl { get; set; }
+        internal string Secret { get; set; }
+        internal string Passphrase { get; set; }
 
         public BaseService()
         {
-            downloadFile(apexTestSuitePath, GetLocalPath("testSuite.zip"));
         }
-
-
 
         internal static string GetLocalPath(string relativeFileName)
         {
-            var localPath = Path.Combine(Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath), relativeFileName.Replace('/', Path.DirectorySeparatorChar));
-            return localPath;
+            return Path.Combine(Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath), relativeFileName.Replace('/', Path.DirectorySeparatorChar));
         }
-        internal void downloadFile(string sourceURL, string downloadPath)
+
+        internal static string DownloadFile(string sourceURL, string downloadPath)
         {
             try
             {
@@ -54,17 +66,17 @@ namespace ApexUtilLibTest
                 int bufferSize = 1024;
                 bufferSize *= 1000;
                 long existLen = 0;
-                System.IO.FileStream saveFileStream;
-                saveFileStream = new System.IO.FileStream(downloadPath,
-                                                          System.IO.FileMode.Create,
-                                                          System.IO.FileAccess.Write,
-                                                          System.IO.FileShare.ReadWrite);
+                FileStream saveFileStream;
+                saveFileStream = new FileStream(downloadPath,
+                                                FileMode.Create,
+                                                FileAccess.Write,
+                                                FileShare.ReadWrite);
 
                 System.Net.HttpWebRequest httpReq;
                 System.Net.HttpWebResponse httpRes;
                 httpReq = (System.Net.HttpWebRequest)System.Net.WebRequest.Create(sourceURL);
                 httpReq.AddRange((int)existLen);
-                System.IO.Stream resStream;
+                Stream resStream;
                 httpRes = (System.Net.HttpWebResponse)httpReq.GetResponse();
                 resStream = httpRes.GetResponseStream();
 
@@ -78,11 +90,19 @@ namespace ApexUtilLibTest
                 }
                 saveFileStream.Close();
 
-                if (System.IO.Directory.Exists(GetLocalPath("temp/")))
+                if (Directory.Exists(GetLocalPath("temp/")))
                 {
                     Directory.Delete(GetLocalPath("temp/"), true);
                 }
                 ZipFile.ExtractToDirectory(downloadPath, GetLocalPath("temp/"));
+
+                // determine the folder for the json files
+                string path = GetLocalPath("temp/");
+                DirectoryInfo dictiontory = new DirectoryInfo(path);
+                DirectoryInfo[] dir = dictiontory.GetDirectories();// this get all subfolder //name in folder NetOffice.
+                string dirName = dir[0].Name; //var dirName get name from array Dir;
+
+                return dirName;
             }
             catch (Exception ex)
             {
@@ -94,25 +114,54 @@ namespace ApexUtilLibTest
         {
             try
             {
-                signatureMethod = paramFile.apiParam.signatureMethod.ParseSignatureMethod(paramFile.apiParam.secret);
-                httpMethod = paramFile.apiParam.httpMethod.ToEnum<ApiUtilLib.HttpMethod>();
-                apiList = new ApiList();
-                SetApiList(paramFile.apiParam.formData);
-                SetApiList(paramFile.apiParam.queryString);
-                timeStamp = paramFile.apiParam.timestamp ?? "%s";
-                version = paramFile.apiParam.version ?? "1.0";
-                nonce = paramFile.apiParam.nonce ?? "%s";
-                authPrefix = paramFile.apiParam.authPrefix;
-                appId = paramFile.apiParam.appID;
-                testId = paramFile.id;
-                signatureURL = paramFile.apiParam.signatureURL.IsNullOrEmpty() == true ? null : new System.Uri(paramFile.apiParam.signatureURL);
-                expectedResult = CommonExtensions.GetCharp(paramFile.expectedResult);
-                errorTest = paramFile.errorTest;
-                skipTest = paramFile.skipTest;
-                invokeUrl = paramFile.apiParam.invokeURL.IsNullOrEmpty() == true ? null : new System.Uri(paramFile.apiParam.invokeURL);
-                secret = paramFile.apiParam.secret ?? null;
-                realm = paramFile.apiParam.realm ?? null;
-                passphrase = paramFile.apiParam.passphrase;// ?? "passwordp12";
+                if (paramFile.ApiParam != null)
+                {
+                    SignatureMethod = paramFile.ApiParam.SignatureMethod.ParseSignatureMethod(paramFile.ApiParam.Secret);
+                    HttpMethod = paramFile.ApiParam.HttpMethod.ToEnum<HttpMethod>();
+
+                    // queryString and formData must be saperated
+                    FormData = FormData.SetupList(paramFile.ApiParam.FormData);
+                    QueryData queryData = QueryData.SetupList(paramFile.ApiParam.QueryString);
+
+                    //TimeStamp = paramFile.ApiParam.Timestamp ?? "%s";
+                    TimeStamp = paramFile.ApiParam.Timestamp;
+
+                    Version = paramFile.ApiParam.Version ?? "1.0";
+
+                    //Nonce = paramFile.ApiParam.Nonce ?? "%s";
+                    Nonce = paramFile.ApiParam.Nonce;
+
+                    AuthPrefix = paramFile.ApiParam.AuthPrefix;
+                    AppId = paramFile.ApiParam.AppID;
+
+                    // combine queryString with URL
+                    string queryString = "";
+                    if (!paramFile.ApiParam.SignatureURL.IsNullOrEmpty())
+                    {
+                        queryString = queryData.ToString();
+                        if (!queryString.IsNullOrEmpty())
+                        {
+                            // query start with ?, replace ? with & when url already contain queryString
+                            if (paramFile.ApiParam.SignatureURL.IndexOf('?') > -1)
+                            {
+                                queryString = queryString.Replace("?", "&");
+                            }
+                        }
+                    }
+                    SignatureURL = paramFile.ApiParam.SignatureURL.IsNullOrEmpty() ? null : new Uri(string.Format("{0}{1}", paramFile.ApiParam.SignatureURL, queryString));
+
+                    InvokeUrl = paramFile.ApiParam.InvokeURL.IsNullOrEmpty() ? null : new Uri(paramFile.ApiParam.InvokeURL);
+                    Secret = paramFile.ApiParam.Secret ?? null;
+                    Realm = paramFile.ApiParam.Realm ?? null;
+                    Passphrase = paramFile.ApiParam.Passphrase ?? paramFile.Passphrase;// ?? "passwordp12";
+                }
+
+                TestId = paramFile.Id;
+                ExpectedResult = CommonExtensions.GetCharp(paramFile.ExpectedResult);
+                ErrorTest = paramFile.ErrorTest;
+
+                SkipTest = paramFile.SkipTest == null ? false : paramFile.SkipTest.Contains("c#");
+
             }
             catch (Exception ex)
             {
@@ -120,86 +169,54 @@ namespace ApexUtilLibTest
             }
         }
 
-        internal void SetApiList(Dictionary<object, object> data = null)
+        internal static IEnumerable<TestParam> GetJsonFile(string fileName)
         {
+            if (!IsDataFileDownloaded)
+            {
+                if (IsDebug)
+                {
+                    var folderName = "linkFolder";
+
+                    // set the path to test data files
+                    testDataPath = GetLocalPath($"{folderName}/testData/");
+                    testCertPath = GetLocalPath($"{folderName}/");
+                }
+                else
+                {
+                    var folderName = DownloadFile(apexTestSuitePath, GetLocalPath("testSuite.zip"));
+
+                    // set the path to test data files
+                    testDataPath = GetLocalPath($"temp/{folderName}/testData/");
+                    testCertPath = GetLocalPath($"temp/{folderName}/");
+                }
+                IsDataFileDownloaded = true;
+            }
+
+            string path = testDataPath + fileName;
+
             try
             {
-                if (data != null)
+                using (StreamReader reader = new StreamReader(path))
                 {
-                    foreach (var item in data)
-                    {
-                        var key = item.Key ?? "";
-                        var value = item.Value ?? "";
+                    string _result = reader.ReadToEnd();
 
-                        String value_s = value.ToString().Trim();
-                       
-                        if (!key.ToString().IsNullOrEmpty())
-                        {
-                            string[] _queryParams = { "" };
-                            string val = null;
+                    IEnumerable<TestParam> result = JsonConvert.DeserializeObject<IEnumerable<TestParam>>(_result);
 
-                            if (!value_s.IsNullOrEmpty() && !(value_s.StartsWith("{", StringComparison.InvariantCulture) && value_s.EndsWith("}", StringComparison.InvariantCulture)))
-                            {
-                            
-                                val = value_s.RemoveString(new string[] { "\\", "\\ ", " \\", "\"", "\\  ", "\n" }).Unescape();
-
-                                if (val == "True")
-                                    val = "true";
-                                if (val == "False")
-                                    val = "false";
-                                if (val.StartsWith("[", StringComparison.InvariantCulture) && val.EndsWith("]", StringComparison.InvariantCulture))
-                                {
-
-                                    string[] _paramValues = { "" };
-                                    val = val.RemoveString(new string[] { "[", "]", " " });
-                                    _paramValues = val.Split(',');
-                                    foreach (var paramvalue in _paramValues)
-                                    {
-                                        var _paramvalue = paramvalue;
-                                        apiList.Add(key.ToString(), _paramvalue.Unescape());
-                                    }
-
-                                }
-                                else
-                                {
-                                    apiList.Add(key.ToString(), val);
-                                }
-                            }
-                            else
-                            {
-                                apiList.Add(key.ToString(), val);
-                            }
-
-                        }
-                    }
+                    return result;
                 }
-            }catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 throw ex;
             }
         }
 
-        internal IEnumerable<TestParam>
-        GetJsonFile(string fileName)
+        internal static void ValidateErrorMessage(TestParam testCase, Exception ex)
         {
-            string path = testDataPath + fileName;
+            // remove the file path that is machine dependent...
+            string err = ex.Message.Replace(testCertPath, "");
 
-            TestDataService service = new TestDataService();
-            var jsonData = service.LoadTestFile(path);
-
-            return jsonData;
-        }
-
-
-        public static byte[] PEM(string type, byte[] data)
-        {
-            string pem = Encoding.ASCII.GetString(data);
-            string header = String.Format("-----BEGIN {0}-----", type);
-            string footer = String.Format("-----END {0}-----", type);
-            int start = pem.IndexOf(header) + header.Length;
-            int end = pem.IndexOf(footer, start);
-            string base64 = pem.Substring(start, (end - start));
-            return Convert.FromBase64String(base64);
+            Assert.AreEqual(testCase.Result, err, "{0} - {1}", testCase.Id, testCase.Description);
         }
     }
 }

@@ -1,51 +1,55 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 namespace ApiUtilLib
 {
     public abstract class LoggerBase : ILogger
 	{
-		protected LogLevel _logLevel = ApiUtilLib.LogLevel.None;
+		protected LogLevel _logLevel = LogLevel.None;
 
         protected LoggerBase __child;
 
         public void SetChainLogger(LoggerBase childLogger)
         {
-            if (__child != null) throw new ArgumentException("Chain logger already been set.");
+            if (__child != null)
+            {
+                throw new ArgumentException("Chain logger already been set.");
+            }
 
             __child = childLogger;
         }
 
 		public LogLevel LogLevel
-		{
-			get { return _logLevel; }
-			set { _logLevel = value; }
-		}
+        {
+            get => _logLevel;
+            set => _logLevel = value;
+        }
 
         void ILogger.Log(LogLevel logLevel, string message)
         {
             switch (logLevel)
             {
-                case ApiUtilLib.LogLevel.None:
+                case LogLevel.None:
                     break;
-                case ApiUtilLib.LogLevel.Trace:
+                case LogLevel.Trace:
                     LogTrace(message);
                     break;
-                case ApiUtilLib.LogLevel.Debug:
+                case LogLevel.Debug:
                     LogDebug(message);
                     break;
-                case ApiUtilLib.LogLevel.Information:
+                case LogLevel.Information:
                     LogInformation(message);
                     break;
-                case ApiUtilLib.LogLevel.Warning:
+                case LogLevel.Warning:
                     LogWarning(message);
                     break;
-                case ApiUtilLib.LogLevel.Error:
+                case LogLevel.Error:
                     LogError(message);
                     break;
-                case ApiUtilLib.LogLevel.Critical:
+                case LogLevel.Critical:
                     LogCritical(message);
+                    break;
+                default:
                     break;
             }
         }
@@ -70,7 +74,7 @@ namespace ApiUtilLib
 			LogMethodCall("{0} Exit :: Return :: {1}", args, caller);
 		}
 
-		void LogMethodCall(string format, object[] args = null, string caller = null)
+		private void LogMethodCall(string format, object[] args = null, string caller = null)
 		{
 			string argsList = "";
 			string delimiter = "";
@@ -89,9 +93,12 @@ namespace ApiUtilLib
 				delimiter = ", ";
 			}
 
-			if (string.IsNullOrEmpty(argsList)) argsList = "none";
+			if (string.IsNullOrEmpty(argsList))
+            {
+                argsList = "none";
+            }
 
-			LogTrace(String.Format(format, caller, argsList));
+            LogTrace(string.Format(format, caller, argsList));
 		}
 
 		public void LogCritical(string message)
@@ -154,15 +161,18 @@ namespace ApiUtilLib
 			LogWarning(string.Format(format, args));
 		}
 
-        void InternalLogMessage(LogLevel messageLogLevel, string message)
+        private void InternalLogMessage(LogLevel messageLogLevel, string message)
 		{
             if (_logLevel <= messageLogLevel)
             {
-                this.LogMessage(messageLogLevel, message);
+                LogMessage(messageLogLevel, message);
             }
 
-            if (__child != null) __child.InternalLogMessage(messageLogLevel, message);
-		}
+            if (__child != null)
+            {
+                __child.InternalLogMessage(messageLogLevel, message);
+            }
+        }
 
         public abstract void LogMessage(LogLevel messageLogLevel, string message);
     }

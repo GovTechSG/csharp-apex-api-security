@@ -52,3 +52,5 @@ NUnit3TestAdapter-3.8.0.vsix
 
 # dotCover
 *.dotCover
+
+TestHarness/

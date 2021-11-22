@@ -3,6 +3,18 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to Semantic Versioning.
 
+### V2.0.1-SNAPSHOT
++ 2021-11-22 - Remove Test Harness 
+
+
+### V2.0.1-SNAPSHOT
++ 2021-08-08 - Restructure PrivateKey and PublicKey API.
+             - Update Test Cases
+
+### V2.0-SNAPSHOT
++ 2021-07-16 - Fix bugs related to form post with array.
+             - Add APEX2 supports and code refactors
+
 ### V1.6-SNAPSHOT
 + 2019-03-22 - Update ApiAuthorization class to support non-standard http port
 
